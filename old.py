@@ -1,7 +1,7 @@
 import requests
 from datetime import datetime, date
 import time
-# import pyodbc
+import pyodbc
 import json
 import pandas as pd
 import pandas_ta as pta # https://mrjbq7.github.io/ta-lib/
