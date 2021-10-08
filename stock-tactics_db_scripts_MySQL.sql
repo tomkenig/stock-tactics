@@ -9,7 +9,7 @@ create table tactics_categories
 
 
 -- drop table tactics_for_tests;
-create table tactics_for_tests
+create table tactics_tests
 (
  `tactic_id` bigint NOT NULL AUTO_INCREMENT PRIMARY KEY, -- unique setting identifier
   `download_settings_id` int(11) NULL, -- unique setting identifier
@@ -28,8 +28,9 @@ create table tactics_for_tests
   `wait_periods` int DEFAULT NULL,
   `stoploss` double DEFAULT NULL,
   `stock_fee`  double DEFAULT NULL,
-  `tactic_status_id` int NULL,
-  `tactic_category_id` int(11) -- FK to tactic_category_id. 
+  `tactic_status_id` int NULL, -- 0 - ready ; 1 - checked
+  `tactic_category_id` int(11), -- FK to tactic_category_id. 
+  `insert_ux_timestamp` int(10) NULL -- record insert date
 );
 
 
@@ -38,10 +39,13 @@ create table tactics_tests_results
 (
  `tactics_tests_results_id` bigint NOT NULL AUTO_INCREMENT PRIMARY KEY, -- unique setting identifier
   `download_settings_id` int(11) NULL, -- unique setting identifier
+  `tactic_id` bigint NULL,
   `result_string_1` varchar(4000) DEFAULT NULL,
   `result_string_2` varchar(4000) DEFAULT NULL,
   `result_string_3` varchar(4000) DEFAULT NULL,
-  `score` bigint NULL,
+  `score_1` bigint NULL,
+  `score_2` bigint NULL,
+  `score_3` bigint NULL,
   `insert_ux_timestamp` int(10) NULL -- record insert date
 );
 
