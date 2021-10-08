@@ -38,7 +38,13 @@ create table tactics_tests_results
 (
  `tactics_tests_results_id` bigint NOT NULL AUTO_INCREMENT PRIMARY KEY, -- unique setting identifier
   `download_settings_id` int(11) NULL, -- unique setting identifier
+  `result_string_1` varchar(4000) DEFAULT NULL,
+  `result_string_2` varchar(4000) DEFAULT NULL,
+  `result_string_3` varchar(4000) DEFAULT NULL,
   `score` bigint NULL,
   `insert_ux_timestamp` int(10) NULL -- record insert date
 );
+
+-- SETTINGS & TACTICS
+-- CREATE VIEW
 

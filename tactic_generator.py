@@ -8,6 +8,7 @@ tactic_category_priority = 0
 
 # tastics_for_tests
 test_stake = 100
+download_settings_id = [2,3,4,5,6,7,10,11]
 buy_indicator_1_name = ["rsi_6", "rsi_10", "rsi_12", "rsi_14", "rsi_20", "rsi_24"]  # 6 elements
 buy_indicator_1_value = [0.05, 0.1, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50]  # 10 elements
 # sell_indicator_1_name
