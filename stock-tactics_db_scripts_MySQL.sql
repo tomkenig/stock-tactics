@@ -3,7 +3,7 @@ create table tactics_categories
 (
  `tactic_category_id` bigint NOT NULL AUTO_INCREMENT PRIMARY KEY, -- unique setting identifier
  `tactic_category_name` varchar(255) DEFAULT NULL,
- `tactic_category_status_id` varchar(255) DEFAULT NULL,
+ `tactic_category_status_id` varchar(255) DEFAULT 0, -- 0 - ready, 1 - tested
  `tactic_category_priority` bigint NULL
 );
 
@@ -25,6 +25,7 @@ create table tactics_for_tests
   `sell_indicator_1_name` varchar(255) DEFAULT NULL,
   `sell_indicator_1_value` double DEFAULT NULL,
   `yield_expected` double DEFAULT NULL,
+  `wait_periods` int DEFAULT NULL,
   `stoploss` double DEFAULT NULL,
   `stock_fee`  double DEFAULT NULL,
   `tactic_status_id` int NULL,

@@ -23,7 +23,7 @@ def get_combination(interval_param_):
 
 
 market = "BTCUSDT"
-tick_interval = "1d"
+tick_interval = "15m"
 data_granulation = "klines"
 stock_type = "spot"
 stock_exchange = "Binance.com"
@@ -201,16 +201,16 @@ print(df)
 
 
 test_stake = 100
-test_indicator_buy_1 = "roc_14"
+test_indicator_buy_1 = "mfi_7"
 #test_indicator_buy_2 = "token_trend_50"
 #test_indicator_buy_3 = "token_trend_100"
 #test_indicator_buy_4 = "adx_7"
-test_indicator_value_1 = -3.5
+test_indicator_value_1 = 15
 #test_indicator_value_2 = 1
 #test_indicator_value_3 = 1
 #test_indicator_value_4 = 40
 test_yield_expect = 3  # ie. 0.01=1%
-test_wait_periods = 6  # ie. try to sell in next 6 periods (or 10)
+test_wait_periods = 17  # ie. try to sell in next 6 periods (or 10)
 test_stoploss = -0.008  # must be minus
 test_stock_fee = -0.0015  # must be minus
 
