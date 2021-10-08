@@ -23,7 +23,7 @@ def get_combination(interval_param_):
 
 
 market = "BTCUSDT"
-tick_interval = "15m"
+tick_interval = "1h"
 data_granulation = "klines"
 stock_type = "spot"
 stock_exchange = "Binance.com"
@@ -201,7 +201,7 @@ print(df)
 
 
 test_stake = 100
-test_indicator_buy_1 = "mfi_7"
+test_indicator_buy_1 = "rsi_6"
 #test_indicator_buy_2 = "token_trend_50"
 #test_indicator_buy_3 = "token_trend_100"
 #test_indicator_buy_4 = "adx_7"
@@ -209,9 +209,9 @@ test_indicator_value_1 = 15
 #test_indicator_value_2 = 1
 #test_indicator_value_3 = 1
 #test_indicator_value_4 = 40
-test_yield_expect = 3  # ie. 0.01=1%
-test_wait_periods = 17  # ie. try to sell in next 6 periods (or 10)
-test_stoploss = -0.008  # must be minus
+test_yield_expect = 2.0  # ie. 0.01=1%
+test_wait_periods = 12  # ie. try to sell in next 6 periods (or 10)
+test_stoploss = -0.05  # must be minus
 test_stock_fee = -0.0015  # must be minus
 
 df["tst_is_buy_signal"] = np.where((df[test_indicator_buy_1] < test_indicator_value_1)
@@ -261,4 +261,23 @@ df3 = df[df["tst_is_buy_signal"] == 1].groupby(["open_time_yr"]).\
                })
 
 print(df3)
+
+# statistics
+
+df4 = df[df["tst_is_buy_signal"] == 1].aggregate({"tst_is_buy_signal": "sum",
+               #"tst_single_game_earn": "sum",
+               "tst_single_game_earn_minus_fees": "sum"
+               #"tst_single_game_earn_minus_fees_with_stoploss": "sum"
+               })
+
+print(df4)
+
+# jsons with results
+df2_json = pd.DataFrame.to_json(df2)
+df3_json = pd.DataFrame.to_json(df3)
+df4_json = pd.DataFrame.to_json(df4)
+
+print(df2_json)
+print(df3_json)
+print(df4_json)
 
