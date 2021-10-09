@@ -15,10 +15,13 @@ import json
 db_schema_name, db_table_name, db_settings_table_name = db_tables()
 cursor, cnxn = db_connect()
 
+
+TACTICS_PACK_SIZE = 1000
+
 # todo: not need to use all params. just use download_settings_id
 # todo: combination table. Can be stored in other schema
 def get_combination():
-    cursor.execute("SELECT download_settings_id, market, tick_interval, data_granulation, stock_type, stock_exchange FROM m1174_stock_dwh.vw_tactics_tests_to_analyse where tactic_status_id = 0 limit 1")
+    cursor.execute("SELECT download_settings_id, market, tick_interval, data_granulation, stock_type, stock_exchange FROM " + db_schema_name + ".vw_tactics_tests_to_analyse where tactic_status_id = 0 limit 1")
     download_setting = cursor.fetchall()
     if len(download_setting) > 0:
         download_settings_id = download_setting[0][0]
@@ -35,35 +38,36 @@ def get_combination():
 
 download_settings_id, market, tick_interval, data_granulation, stock_type, stock_exchange = get_combination()
 
-
-
+print(download_settings_id, market, tick_interval, data_granulation, stock_type, stock_exchange)
+print(type(download_settings_id))
 
 # download OHLC data from DWH
 def get_ohlc_data():
-    cursor.execute("SELECT * FROM m1174_stock_dwh.vw_binance_klines_anl where market = '"+market+"' and "
+    cursor.execute("SELECT * FROM " + db_schema_name + ".vw_binance_klines_anl where market = '"+market+"' and "
                                                                                                      "tick_interval = '" + tick_interval + "' and "
                                                                                                      "data_granulation = '"+ data_granulation + "' and "
                                                                                                      "stock_type = '" + stock_type + "' and "
                                                                                                      "stock_exchange = '" + stock_exchange + "' ")
     df = pd.DataFrame(cursor.fetchall())
+    df_bak = df.copy()  # absolutly needed. Simple assignment doesn't work
     print("data ready")
-    cnxn.close()
-    return df
+    return df, df_bak
 
-df = get_ohlc_data()
+df, df_bak = get_ohlc_data()
 
-
-
-def get_single_tactic():
-    cursor.execute(
-        "SELECT download_settings_id, test_stake, buy_indicator_1_name, buy_indicator_1_value, yield_expected, wait_periods FROM m1174_stock_dwh.vw_tactics_tests_to_analyse where tactic_status_id = 0 limit 1")
-    download_setting = cursor.fetchall()
+print(df)
 
 
+def get_tactics_to_check():
+    cursor.execute("SELECT tactic_id, download_settings_id, test_stake, buy_indicator_1_name, buy_indicator_1_value, yield_expected, wait_periods "
+                   "FROM " + db_schema_name + ".vw_tactics_tests_to_analyse where tactic_status_id = 0 and download_settings_id = "+ str(download_settings_id) + " limit " + str(TACTICS_PACK_SIZE) +" ")
+    tactics_data = cursor.fetchall()
+    return tactics_data
+
+tactics_data = get_tactics_to_check()
 
 
-
-def get_test_result():
+def get_test_result(test_stake_in, test_indicator_buy_1_in, test_indicator_value_1_in, test_yield_expect_in, test_wait_periods_in):
     df.columns =["open_time",
                  "open",
                  "high",
@@ -224,17 +228,17 @@ def get_test_result():
     # print(df)
 
 
-    test_stake = 100
-    test_indicator_buy_1 = "rsi_6"
+    test_stake = int(test_stake_in)
+    test_indicator_buy_1 = test_indicator_buy_1_in
     #test_indicator_buy_2 = "token_trend_50"
     #test_indicator_buy_3 = "token_trend_100"
     #test_indicator_buy_4 = "adx_7"
-    test_indicator_value_1 = 15
+    test_indicator_value_1 = test_indicator_value_1_in
     #test_indicator_value_2 = 1
     #test_indicator_value_3 = 1
     #test_indicator_value_4 = 40
-    test_yield_expect = 2.0  # ie. 0.01=1%
-    test_wait_periods = 12  # ie. try to sell in next 6 periods (or 10)
+    test_yield_expect = test_yield_expect_in  # ie. 0.01=1%
+    test_wait_periods = test_wait_periods_in  # ie. try to sell in next 6 periods (or 10)
     test_stoploss = -0.05  # must be minus
     test_stock_fee = -0.0015  # must be minus
 
@@ -306,20 +310,32 @@ def get_test_result():
 
     return result_string_1, result_string_2, result_string_3, score_1, score_2
 
+print("main loop:")
+print(len(tactics_data)-1)
+###################################################### LICZBA NIE ELEMENT
+for i in range(len(tactics_data)-1): # in tactics_data:
+    #print(i)
+    #i = 1
+    result_string_1, result_string_2, result_string_3, score_1, score_2 = get_test_result(int(tactics_data[i][2]), tactics_data[i][3], tactics_data[i][4], tactics_data[i][5], tactics_data[i][6])
+    print(result_string_1, result_string_2, result_string_3, score_1, score_2)
 
-result_string_1, result_string_2, result_string_3, score_1, score_2 = get_test_result()
 
 
+    # update - test status done
+    cursor.execute("UPDATE " + db_schema_name + ".tactics_tests SET tactic_status_id = 2 where tactic_id = " + str(tactics_data[i][0]) + " ")
+    print("update done")
+    cnxn.commit()
 
-# update - test status done
-cursor.execute("UPDATE " + db_schema_name + ".tactics_tests SET tactic_status_id = 2 where tactic_id = %s", ())
-print("insert done")
-cnxn.commit()
+    # insert results if results are good enough
+    if score_2 >= 100:
+        cursor.execute(
+            "INSERT INTO " + db_schema_name + ".tactics_tests_results (download_settings_id, tactic_id, result_string_1, result_string_2, result_string_3, score_1, score_2)  values "
+                                              "(%s, %s, %s, %s, %s, %s, %s)", (
+            download_settings_id, str(tactics_data[i][0]), result_string_1, result_string_2, result_string_3, str(int(score_1)), str(int(score_2))))
 
-# insert results if results are good enough
-if score_2 >= 100:
-    cursor.execute( "INSERT INTO " + db_schema_name + ".tactics_tests_results (download_settings_id, tactic_id, result_string_1, result_string_2, result_string_3, score_1, score_2)  values "
-                                          "(%s, %s, %s, %s, %s, %s, %s)", (download_settings_id, tactic_id, y[2], y[3], y[4], y[5], 0.0015, 0, 1))
+    print("insert done or not")
+    df = df_bak.copy()  # absolutly needed. Simple assignment doesn't work
+    print(df)
+    cnxn.commit()
 
-print("insert done")
-cnxn.commit()
+
