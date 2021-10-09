@@ -16,7 +16,7 @@ db_schema_name, db_table_name, db_settings_table_name = db_tables()
 cursor, cnxn = db_connect()
 
 
-TACTICS_PACK_SIZE = 1000
+TACTICS_PACK_SIZE = 50000
 
 # todo: not need to use all params. just use download_settings_id
 # todo: combination table. Can be stored in other schema
@@ -39,7 +39,6 @@ def get_combination():
 download_settings_id, market, tick_interval, data_granulation, stock_type, stock_exchange = get_combination()
 
 print(download_settings_id, market, tick_interval, data_granulation, stock_type, stock_exchange)
-print(type(download_settings_id))
 
 # download OHLC data from DWH
 def get_ohlc_data():
@@ -334,7 +333,7 @@ for i in range(len(tactics_data)-1): # in tactics_data:
             download_settings_id, str(tactics_data[i][0]), result_string_1, result_string_2, result_string_3, str(int(score_1)), str(int(score_2))))
 
     print("insert done or not")
-    df = df_bak.copy()  # absolutly needed. Simple assignment doesn't work
+    df = df_bak.copy()  # absolutly needed. Simple assignment doesn't work in pandas
     print(df)
     cnxn.commit()
 

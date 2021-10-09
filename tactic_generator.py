@@ -39,12 +39,14 @@ for y in x:
 print("insert done")
 cnxn.commit()
 
-
+################################################ive made faillure buy_indicator_1_value -2 not 2
+#INSERT DATA AGAIN
+#BUT THIS IS SIGNAL, THAT  + VALUES OF INDICATOR MAKE SENSE
 # tastics_for_tests ROC
 download_settings_id = [2, 3, 4, 5, 6, 7, 10, 11]
 test_stake = [100]
 buy_indicator_1_name = ["roc_5", "roc_6", "roc_9", "roc_10", "roc_12", "roc_14", "roc_24"]
-buy_indicator_1_value = [-0.05, -0.1, -0.50, -1, -1.5, 2, -2.5, -3, -3.5, -4, -4.5, -5, -5.5, -6, -6.5,  -7]
+buy_indicator_1_value = [-0.05, -0.1, -0.50, -1, -1.5, -2, -2.5, -3, -3.5, -4, -4.5, -5, -5.5, -6, -6.5,  -7]
 # sell_indicator_1_name
 # sell_indicator_1_value
 yield_expected = [0.3, 0.4, 0.5, 0.7, 0.8, 1, 1.2, 1.35, 1.5, 2, 2.5, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 15, 20]
