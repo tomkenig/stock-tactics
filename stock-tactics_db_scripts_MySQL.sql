@@ -8,7 +8,7 @@ create table tactics_categories
 );
 
 
--- drop table tactics_for_tests;
+-- drop table tactics_tests;
 create table tactics_tests
 (
  `tactic_id` bigint NOT NULL AUTO_INCREMENT PRIMARY KEY, -- unique setting identifier
