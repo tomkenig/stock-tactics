@@ -143,7 +143,8 @@ def get_test_result(test_stake_in, test_indicator_buy_1_in, test_indicator_value
     df["rsi_24"] = ta.RSI(df["close"], timeperiod=24) # tradingview corr, ok, checked
 
     # Williams %R
-    df["will_perc_r_10"] = pta.willr(df["high"], df["low"], df["close"], 10) # tradingview corr
+    df["will_perc_r_6"] = pta.willr(df["high"], df["low"], df["close"], 6) #
+    df["will_perc_r_10"] = pta.willr(df["high"], df["low"], df["close"], 10) # tradingview corr #williams default
     df["will_perc_r_14"] = pta.willr(df["high"], df["low"], df["close"], 14) # tradingview corr
 
     # CCI
