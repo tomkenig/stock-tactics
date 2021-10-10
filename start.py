@@ -16,7 +16,7 @@ db_schema_name, db_table_name, db_settings_table_name = db_tables()
 cursor, cnxn = db_connect()
 
 
-TACTICS_PACK_SIZE = 50000
+TACTICS_PACK_SIZE = 10000
 
 # todo: not need to use all params. just use download_settings_id
 # todo: combination table. Can be stored in other schema

@@ -28,7 +28,7 @@ create table tactics_tests
   `wait_periods` int DEFAULT NULL,
   `stoploss` double DEFAULT NULL,
   `stock_fee`  double DEFAULT NULL,
-  `tactic_status_id` int NULL, -- 0 - ready ; 1 - checked
+  `` int NULL, -- 0 - ready ; 1 - started ; 2 - done
   `tactic_category_id` int(11), -- FK to tactic_category_id. 
   `insert_ux_timestamp` int(10) NULL -- record insert date
 );
@@ -50,5 +50,26 @@ create table tactics_tests_results
 );
 
 -- SETTINGS & TACTICS
--- CREATE VIEW
+CREATE VIEW vw_tactics_tests_to_analyse as
+select 
+bds.market,
+bds.tick_interval,
+bds.data_granulation,
+bds.stock_type,
+bds.stock_exchange,
+tt.*,
+md5(tactic_id) as sort_identifier -- only for randomize
+ from tactics_tests tt
+left outer join binance_download_settings bds on tt.download_settings_id = bds.download_settings_id
+where tactic_status_id = 0
+order by market, tick_interval, sort_identifier
+;
+
+select * from  tactics_tests_results ttr
+left join tactics_tests tta on ttr.tactic_id = tta.tactic_id
+left join binance_download_settings bds on bds.download_settings_id = ttr.download_settings_id
+where wait_periods < 10
+order by score_2 desc
+LIMIT 1000
+;
 
