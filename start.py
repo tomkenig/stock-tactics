@@ -16,7 +16,7 @@ db_schema_name, db_table_name, db_settings_table_name = db_tables()
 cursor, cnxn = db_connect()
 
 
-TACTICS_PACK_SIZE = 10000
+TACTICS_PACK_SIZE = 5000
 
 # todo: not need to use all params. just use download_settings_id
 # todo: combination table. Can be stored in other schema
@@ -280,6 +280,7 @@ def get_test_result(test_stake_in, test_indicator_buy_1_in, test_indicator_value
     df2['earn_sign'] = np.sign(df2["tst_single_game_earn_minus_fees"])
     # print(df2)
 
+
     df3 = df[df["tst_is_buy_signal"] == 1].groupby(["open_time_yr"]).\
         aggregate({"tst_is_buy_signal": "sum",
                    #"tst_single_game_earn": "sum",
@@ -287,8 +288,6 @@ def get_test_result(test_stake_in, test_indicator_buy_1_in, test_indicator_value
                    #"tst_single_game_earn_minus_fees_with_stoploss": "sum"
                    })
     df3['earn_sign'] = np.sign(df3["tst_single_game_earn_minus_fees"])
-
-
     # print(df3)
 
     # statistics
@@ -299,17 +298,7 @@ def get_test_result(test_stake_in, test_indicator_buy_1_in, test_indicator_value
                    #"tst_single_game_earn_minus_fees_with_stoploss": "sum"
                    })
 
-    df5 = df2[df2["tst_is_buy_signal"] == 1].aggregate({"earn_sign": "sum",
-                   #"tst_single_game_earn": "sum",
-                   "earn_cnt": "sum"
-                   #"tst_single_game_earn_minus_fees_with_stoploss": "sum"
-                   })
 
-    df6 = df3[df3["tst_is_buy_signal"] == 1].aggregate({"earn_sign": "sum",
-                   #"tst_single_game_earn": "sum",
-                   "earn_cnt": "sum"
-                   #"tst_single_game_earn_minus_fees_with_stoploss": "sum"
-                   })
     # print(df4)
 
     # jsons with results
@@ -318,8 +307,9 @@ def get_test_result(test_stake_in, test_indicator_buy_1_in, test_indicator_value
     result_string_3 = pd.DataFrame.to_json(df4)
     score_1 = df4["tst_is_buy_signal"]
     score_2 = df4["tst_single_game_earn_minus_fees"]
-    score_3 = df5["earn_cnt"]
-    score_4 = df6["earn_cnt"]
+    score_3 = df2["earn_sign"].sum() / df2["earn_sign"].count()
+    score_4 = df3["earn_sign"].sum() / df3["earn_sign"].count()
+
 
     return result_string_1, result_string_2, result_string_3, score_1, score_2, score_3, score_4
 
@@ -342,9 +332,9 @@ for i in range(len(tactics_data)-1): # in tactics_data:
     # insert results if results are good enough
     if score_2 >= 100:
         cursor.execute(
-            "INSERT INTO " + db_schema_name + ".tactics_tests_results (download_settings_id, tactic_id, result_string_1, result_string_2, result_string_3, score_1, score_2)  values "
-                                              "(%s, %s, %s, %s, %s, %s, %s)", (
-            download_settings_id, str(tactics_data[i][0]), result_string_1, result_string_2, result_string_3, str(int(score_1)), str(int(score_2))))
+            "INSERT INTO " + db_schema_name + ".tactics_tests_results (download_settings_id, tactic_id, result_string_1, result_string_2, result_string_3, score_1, score_2, score_3, score_4)  values "
+                                              "(%s, %s, %s, %s, %s, %s, %s, %s, %s)", (
+            download_settings_id, str(tactics_data[i][0]), result_string_1, result_string_2, result_string_3, str(int(score_1)), str(int(score_2)), str(score_3), str(score_4)))
 
     print("insert done or not")
     df = df_bak.copy()  # absolutly needed. Simple assignment doesn't work in pandas

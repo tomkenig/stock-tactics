@@ -22,8 +22,10 @@ create table tactics_tests
   `test_stake` double DEFAULT NULL,
   `buy_indicator_1_name` varchar(50) DEFAULT NULL,
   `buy_indicator_1_value` double DEFAULT NULL,
+  `buy_indicator_1_operator`
   `sell_indicator_1_name` varchar(255) DEFAULT NULL,
   `sell_indicator_1_value` double DEFAULT NULL,
+  `sell_indicator_1_operator`
   `yield_expected` double DEFAULT NULL,
   `wait_periods` int DEFAULT NULL,
   `stoploss` double DEFAULT NULL,
@@ -43,9 +45,10 @@ create table tactics_tests_results
   `result_string_1` varchar(4000) DEFAULT NULL,
   `result_string_2` varchar(4000) DEFAULT NULL,
   `result_string_3` varchar(4000) DEFAULT NULL,
-  `score_1` bigint NULL,
-  `score_2` bigint NULL,
-  `score_3` bigint NULL,
+  `score_1` double NULL,
+  `score_2` double NULL,
+  `score_3` double NULL,
+  `score_4` double NULL,
   `insert_ux_timestamp` int(10) NULL -- record insert date
 );
 
