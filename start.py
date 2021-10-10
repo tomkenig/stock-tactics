@@ -277,7 +277,7 @@ def get_test_result(test_stake_in, test_indicator_buy_1_in, test_indicator_value
                    "tst_single_game_earn_minus_fees": "sum"
                    #"tst_single_game_earn_minus_fees_with_stoploss": "sum"
                    })
-
+    df2['earn_sign'] = np.sign(df2["tst_single_game_earn_minus_fees"])
     # print(df2)
 
     df3 = df[df["tst_is_buy_signal"] == 1].groupby(["open_time_yr"]).\
@@ -286,6 +286,8 @@ def get_test_result(test_stake_in, test_indicator_buy_1_in, test_indicator_value
                    "tst_single_game_earn_minus_fees": "sum"
                    #"tst_single_game_earn_minus_fees_with_stoploss": "sum"
                    })
+    df3['earn_sign'] = np.sign(df3["tst_single_game_earn_minus_fees"])
+
 
     # print(df3)
 
@@ -297,6 +299,17 @@ def get_test_result(test_stake_in, test_indicator_buy_1_in, test_indicator_value
                    #"tst_single_game_earn_minus_fees_with_stoploss": "sum"
                    })
 
+    df5 = df2[df2["tst_is_buy_signal"] == 1].aggregate({"earn_sign": "sum",
+                   #"tst_single_game_earn": "sum",
+                   "earn_cnt": "sum"
+                   #"tst_single_game_earn_minus_fees_with_stoploss": "sum"
+                   })
+
+    df6 = df3[df3["tst_is_buy_signal"] == 1].aggregate({"earn_sign": "sum",
+                   #"tst_single_game_earn": "sum",
+                   "earn_cnt": "sum"
+                   #"tst_single_game_earn_minus_fees_with_stoploss": "sum"
+                   })
     # print(df4)
 
     # jsons with results
@@ -305,9 +318,10 @@ def get_test_result(test_stake_in, test_indicator_buy_1_in, test_indicator_value
     result_string_3 = pd.DataFrame.to_json(df4)
     score_1 = df4["tst_is_buy_signal"]
     score_2 = df4["tst_single_game_earn_minus_fees"]
+    score_3 = df5["earn_cnt"]
+    score_4 = df6["earn_cnt"]
 
-
-    return result_string_1, result_string_2, result_string_3, score_1, score_2
+    return result_string_1, result_string_2, result_string_3, score_1, score_2, score_3, score_4
 
 print("main loop:")
 print(len(tactics_data)-1)
@@ -315,8 +329,8 @@ print(len(tactics_data)-1)
 for i in range(len(tactics_data)-1): # in tactics_data:
     #print(i)
     #i = 1
-    result_string_1, result_string_2, result_string_3, score_1, score_2 = get_test_result(int(tactics_data[i][2]), tactics_data[i][3], tactics_data[i][4], tactics_data[i][5], tactics_data[i][6])
-    print(result_string_1, result_string_2, result_string_3, score_1, score_2)
+    result_string_1, result_string_2, result_string_3, score_1, score_2, score_3, score_4 = get_test_result(int(tactics_data[i][2]), tactics_data[i][3], tactics_data[i][4], tactics_data[i][5], tactics_data[i][6])
+    print(result_string_1, result_string_2, result_string_3, score_1, score_2, score_3, score_4)
 
 
 

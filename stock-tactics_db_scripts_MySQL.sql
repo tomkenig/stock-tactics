@@ -64,7 +64,7 @@ left outer join binance_download_settings bds on tt.download_settings_id = bds.d
 where tactic_status_id = 0
 order by market, tick_interval, sort_identifier
 ;
-
+-- 
 select * from  tactics_tests_results ttr
 left join tactics_tests tta on ttr.tactic_id = tta.tactic_id
 left join binance_download_settings bds on bds.download_settings_id = ttr.download_settings_id
