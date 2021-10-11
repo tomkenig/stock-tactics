@@ -1,5 +1,5 @@
 -- drop table tactics_for_tests;
-create table tactics_categories
+create table tactics_categories -- CHANGE NAME TO TACTIC GROUP 
 (
  `tactic_category_id` bigint NOT NULL AUTO_INCREMENT PRIMARY KEY, -- unique setting identifier
  `tactic_category_name` varchar(255) DEFAULT NULL,
