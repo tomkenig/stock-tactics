@@ -1,5 +1,4 @@
-# todo: update and lock records
-# todo: zero-devide error in data frame
+
 """
 pip install mysql-connector-python
 pip install pandas
@@ -315,32 +314,5 @@ def get_test_result(test_stake_in, test_indicator_buy_1_in, test_indicator_value
 
     return result_string_1, result_string_2, result_string_3, score_1, score_2, score_3, score_4
 
-print("main loop:")
-print(len(tactics_data)-1)
-###################################################### LICZBA NIE ELEMENT
-for i in range(len(tactics_data)-1): # in tactics_data:
-    #print(i)
-    #i = 1
-    result_string_1, result_string_2, result_string_3, score_1, score_2, score_3, score_4 = get_test_result(int(tactics_data[i][2]), tactics_data[i][3], tactics_data[i][4], tactics_data[i][5], tactics_data[i][6])
-    print(result_string_1, result_string_2, result_string_3, score_1, score_2, score_3, score_4)
-
-
-
-    # update - test status done
-    cursor.execute("UPDATE " + db_schema_name + ".tactics_tests SET tactic_status_id = 2 where tactic_id = " + str(tactics_data[i][0]) + " ")
-    print("update done")
-    cnxn.commit()
-
-    # insert results if results are good enough
-    if score_2 >= 100:
-        cursor.execute(
-            "INSERT INTO " + db_schema_name + ".tactics_tests_results (download_settings_id, tactic_id, result_string_1, result_string_2, result_string_3, score_1, score_2, score_3, score_4)  values "
-                                              "(%s, %s, %s, %s, %s, %s, %s, %s, %s)", (
-            download_settings_id, str(tactics_data[i][0]), result_string_1, result_string_2, result_string_3, str(int(score_1)), str(int(score_2)), str(score_3), str(score_4)))
-
-    print("insert done or not")
-    df = df_bak.copy()  # absolutly needed. Simple assignment doesn't work in pandas
-    print(df)
-    cnxn.commit()
 
 
