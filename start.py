@@ -6,18 +6,26 @@ pip install pandas
 pip install numpy
 """
 # libs
+# import datetime
 from db_works import db_connect, db_tables
 import pandas as pd
 import numpy as np
 import pandas_ta as pta  # https://mrjbq7.github.io/ta-lib/
 import talib as ta  # install from whl file < https://www.lfd.uci.edu/~gohlke/pythonlibs/#ta-lib
+from hashlib import md5
 import json
+import time
 
 db_schema_name, db_table_name, db_settings_table_name = db_tables()
 cursor, cnxn = db_connect()
 
-
 TACTICS_PACK_SIZE = 5000
+
+# create session identifier with md5
+#app_session = md5(str(datetime.datetime.utcnow()).encode("ascii")).hexdigest()
+#print(app_session)
+#time.sleep(3)
+
 
 # todo: not need to use all params. just use download_settings_id
 # todo: combination table. Can be stored in other schema
@@ -107,13 +115,10 @@ def get_test_result(test_stake_in, test_indicator_buy_1_in, test_indicator_value
     # you an combine it with ADX - trend strength by multiply both ie. -1 * 40
     df["token_change_7"] = df["change_val"].rolling(7).sum()
     df["token_trend_7"] = np.where(df["token_change_7"] > 0, 1, -1)
-
     df["token_change_14"] = df["change_val"].rolling(14).sum() # oryginal
     df["token_trend_14"] = np.where(df["token_change_14"] > 0, 1, -1)
-
     df["token_change_50"] = df["change_val"].rolling(50).sum()
     df["token_trend_50"] = np.where(df["token_change_50"] > 0, 1, -1)
-
     df["token_change_100"] = df["change_val"].rolling(100).sum()
     df["token_trend_100"] = np.where(df["token_change_100"] > 0, 1, -1)
 
@@ -225,7 +230,6 @@ def get_test_result(test_stake_in, test_indicator_buy_1_in, test_indicator_value
     # TESTS strategies
 
 
-
     # print(df)
 
 
@@ -241,7 +245,7 @@ def get_test_result(test_stake_in, test_indicator_buy_1_in, test_indicator_value
     test_yield_expect = test_yield_expect_in  # ie. 0.01=1%
     test_wait_periods = test_wait_periods_in  # ie. try to sell in next 6 periods (or 10)
     test_stoploss = -0.05  # must be minus
-    test_stock_fee = -0.0015  # must be minus
+    test_stock_fee = -0.002  # must be minus
 
     df["tst_is_buy_signal"] = np.where((df[test_indicator_buy_1] < test_indicator_value_1)
     #                                   & (df[test_indicator_buy_2] < test_indicator_value_2)

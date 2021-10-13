@@ -1,4 +1,4 @@
--- drop table tactics_for_tests;
+-- drop table tactics_categories;
 create table tactics_categories -- CHANGE NAME TO TACTIC GROUP 
 (
  `tactic_category_id` bigint NOT NULL AUTO_INCREMENT PRIMARY KEY, -- unique setting identifier
@@ -22,15 +22,15 @@ create table tactics_tests
   `test_stake` double DEFAULT NULL,
   `buy_indicator_1_name` varchar(50) DEFAULT NULL,
   `buy_indicator_1_value` double DEFAULT NULL,
-  `buy_indicator_1_operator`
+  `buy_indicator_1_operator`  varchar(50) DEFAULT NULL,
   `sell_indicator_1_name` varchar(255) DEFAULT NULL,
   `sell_indicator_1_value` double DEFAULT NULL,
-  `sell_indicator_1_operator`
+  `sell_indicator_1_operator`  varchar(50) DEFAULT NULL,
   `yield_expected` double DEFAULT NULL,
   `wait_periods` int DEFAULT NULL,
   `stoploss` double DEFAULT NULL,
   `stock_fee`  double DEFAULT NULL,
-  `` int NULL, -- 0 - ready ; 1 - started ; 2 - done
+  `tactic_status_id` int NULL, -- 0 - ready ; 1 - started ; 2 - done
   `tactic_category_id` int(11), -- FK to tactic_category_id. 
   `insert_ux_timestamp` int(10) NULL -- record insert date
 );
