@@ -19,7 +19,7 @@ import time
 db_schema_name, db_table_name, db_settings_table_name = db_tables()
 cursor, cnxn = db_connect()
 
-TACTICS_PACK_SIZE = 5000
+TACTICS_PACK_SIZE = 50000
 
 # create session identifier with md5
 #app_session = md5(str(datetime.datetime.utcnow()).encode("ascii")).hexdigest()
@@ -39,7 +39,7 @@ def get_combination():
         data_granulation = download_setting[0][3]
         stock_type = download_setting[0][4]
         stock_exchange = download_setting[0][5]
-        print("select done")
+        print("select done settings done")
     else:
         print("no data to download")
         exit()
@@ -58,7 +58,7 @@ def get_ohlc_data():
                                                                                                      "stock_exchange = '" + stock_exchange + "' ")
     df = pd.DataFrame(cursor.fetchall())
     df_bak = df.copy()  # absolutly needed. Simple assignment doesn't work
-    print("data ready")
+    print("OHLC data ready")
     return df, df_bak
 
 df, df_bak = get_ohlc_data()
@@ -319,14 +319,14 @@ def get_test_result(test_stake_in, test_indicator_buy_1_in, test_indicator_value
 
     return result_string_1, result_string_2, result_string_3, score_1, score_2, score_3, score_4
 
-print("main loop:")
+print("main loop start:")
 print(len(tactics_data)-1)
 ###################################################### LICZBA NIE ELEMENT
 for i in range(len(tactics_data)-1): # in tactics_data:
     #print(i)
     #i = 1
     result_string_1, result_string_2, result_string_3, score_1, score_2, score_3, score_4 = get_test_result(int(tactics_data[i][2]), tactics_data[i][3], tactics_data[i][4], tactics_data[i][5], tactics_data[i][6])
-    print(result_string_1, result_string_2, result_string_3, score_1, score_2, score_3, score_4)
+    #print(result_string_1, result_string_2, result_string_3, score_1, score_2, score_3, score_4)
 
 
 
@@ -344,7 +344,7 @@ for i in range(len(tactics_data)-1): # in tactics_data:
 
     print("insert done or not")
     df = df_bak.copy()  # absolutly needed. Simple assignment doesn't work in pandas
-    print(df)
+    #print(df)
     cnxn.commit()
 
 
