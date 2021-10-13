@@ -30,7 +30,7 @@ TACTICS_PACK_SIZE = 5000
 # todo: not need to use all params. just use download_settings_id
 # todo: combination table. Can be stored in other schema
 def get_combination():
-    cursor.execute("SELECT download_settings_id, market, tick_interval, data_granulation, stock_type, stock_exchange FROM " + db_schema_name + ".vw_tactics_tests_to_analyse where tactic_status_id = 0 limit 1")
+    cursor.execute("SELECT download_settings_id, market, tick_interval, data_granulation, stock_type, stock_exchange FROM " + db_schema_name + ".vw_tactics_tests_to_analyse where tick_interval <> '15m' and tactic_status_id = 0 limit 1")
     download_setting = cursor.fetchall()
     if len(download_setting) > 0:
         download_settings_id = download_setting[0][0]
