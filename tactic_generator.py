@@ -2,8 +2,7 @@
 from db_works import db_connect, db_tables
 import itertools
 # tactics_categories
-tactic_category_name = "RSI first tests"
-tactic_category_priority = 0
+tactic_group_name = "RSI first tests"
 
 # configs
 db_schema_name, db_table_name, db_settings_table_name = db_tables()
@@ -31,7 +30,7 @@ for element in itertools.product(*somelists):
 
 for y in x:
     cursor.execute("INSERT INTO " + db_schema_name + ".tactics_tests (download_settings_id, test_stake, buy_indicator_1_name, buy_indicator_1_value,"
-                                          "yield_expected, wait_periods, stock_fee, tactic_status_id, tactic_category_id)  values "
+                                          "yield_expected, wait_periods, stock_fee, tactic_status_id, tactic_group_id)  values "
                                           "(%s, %s, %s, %s, %s, %s, %s, %s, %s)",
                    (y[0], y[1], y[2], y[3], y[4], y[5], 0.002, 0, 1))
 
@@ -61,7 +60,7 @@ for element in itertools.product(*somelists):
 
 for y in x:
     cursor.execute("INSERT INTO " + db_schema_name + ".tactics_tests (download_settings_id, test_stake, buy_indicator_1_name, buy_indicator_1_value,"
-                                          "yield_expected, wait_periods, stock_fee, tactic_status_id, tactic_category_id)  values "
+                                          "yield_expected, wait_periods, stock_fee, tactic_status_id, tactic_group_id)  values "
                                           "(%s, %s, %s, %s, %s, %s, %s, %s, %s)",
                    (y[0], y[1], y[2], y[3], y[4], y[5], 0.002, 0, 1))
 
@@ -90,7 +89,7 @@ for element in itertools.product(*somelists):
 
 for y in x:
     cursor.execute("INSERT INTO " + db_schema_name + ".tactics_tests (download_settings_id, test_stake, buy_indicator_1_name, buy_indicator_1_value,"
-                                          "yield_expected, wait_periods, stock_fee, tactic_status_id, tactic_category_id)  values "
+                                          "yield_expected, wait_periods, stock_fee, tactic_status_id, tactic_group_id)  values "
                                           "(%s, %s, %s, %s, %s, %s, %s, %s, %s)",
                    (y[0], y[1], y[2], y[3], y[4], y[5], 0.002, 0, 1))
 
@@ -119,7 +118,7 @@ for element in itertools.product(*somelists):
 
 for y in x:
     cursor.execute("INSERT INTO " + db_schema_name + ".tactics_tests (download_settings_id, test_stake, buy_indicator_1_name, buy_indicator_1_value,"
-                                          "yield_expected, wait_periods, stock_fee, tactic_status_id, tactic_category_id)  values "
+                                          "yield_expected, wait_periods, stock_fee, tactic_status_id, tactic_group_id)  values "
                                           "(%s, %s, %s, %s, %s, %s, %s, %s, %s)",
                    (y[0], y[1], y[2], y[3], y[4], y[5], 0.002, 0, 1))
 

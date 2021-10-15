@@ -1,10 +1,11 @@
--- drop table tactics_categories;
-create table tactics_categories -- CHANGE NAME TO TACTIC GROUP 
+-- drop table tactics_groups;
+create table tactics_groups -- CHANGE NAME TO TACTIC GROUP 
 (
- `tactic_category_id` bigint NOT NULL AUTO_INCREMENT PRIMARY KEY, -- unique setting identifier
- `tactic_category_name` varchar(255) DEFAULT NULL,
- `tactic_category_status_id` varchar(255) DEFAULT 0, -- 0 - ready, 1 - tested
- `tactic_category_priority` bigint NULL
+ `tactic_group_id` bigint NOT NULL AUTO_INCREMENT PRIMARY KEY, -- unique setting identifier
+ `tactic_group_name` varchar(255) DEFAULT NULL,
+ `tactic_group_status_id` varchar(255) DEFAULT 0, -- 0 - ready, 1 - tested
+ `tactic_group_priority` bigint NULL,
+ `insert_timestamp` timestamp default current_timestamp() -- record insert date
 );
 
 
@@ -30,9 +31,10 @@ create table tactics_tests
   `wait_periods` int DEFAULT NULL,
   `stoploss` double DEFAULT NULL,
   `stock_fee`  double DEFAULT NULL,
+  `tactic_session_uuid`  varchar(50) DEFAULT NULL,
   `tactic_status_id` int NULL, -- 0 - ready ; 1 - started ; 2 - done
-  `tactic_category_id` int(11), -- FK to tactic_category_id. 
-  `insert_ux_timestamp` int(10) NULL -- record insert date
+  `tactic_group_id` int(11), -- FK to tactic_category_id. 
+  `insert_timestamp` timestamp default current_timestamp() -- record insert date
 );
 
 
@@ -49,10 +51,11 @@ create table tactics_tests_results
   `score_2` double NULL,
   `score_3` double NULL,
   `score_4` double NULL,
-  `insert_ux_timestamp` int(10) NULL -- record insert date
+  `insert_timestamp` timestamp default current_timestamp() -- record insert date
 );
 
 -- SETTINGS & TACTICS
+-- DROP VIEW vw_tactics_tests_to_analyse;
 CREATE VIEW vw_tactics_tests_to_analyse as
 select 
 bds.market,

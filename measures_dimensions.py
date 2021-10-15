@@ -1,44 +1,42 @@
-
+# todo: update and lock records
+# todo: zero-devide error in data frame
 """
 pip install mysql-connector-python
 pip install pandas
 pip install numpy
 """
 # libs
+# import datetime
 from db_works import db_connect, db_tables
 import pandas as pd
 import numpy as np
 import pandas_ta as pta  # https://mrjbq7.github.io/ta-lib/
 import talib as ta  # install from whl file < https://www.lfd.uci.edu/~gohlke/pythonlibs/#ta-lib
 import json
+import time
+import uuid  # https://docs.python.org/3/library/uuid.html
+import openpyxl
 
 db_schema_name, db_table_name, db_settings_table_name = db_tables()
 cursor, cnxn = db_connect()
 
+TACTICS_PACK_SIZE = 50000
 
-TACTICS_PACK_SIZE = 5000
+# create session identifier with md5
+tactic_uuid = str(uuid.uuid1())
+
 
 # todo: not need to use all params. just use download_settings_id
 # todo: combination table. Can be stored in other schema
-def get_combination():
-    cursor.execute("SELECT download_settings_id, market, tick_interval, data_granulation, stock_type, stock_exchange FROM " + db_schema_name + ".vw_tactics_tests_to_analyse where tactic_status_id = 0 limit 1")
-    download_setting = cursor.fetchall()
-    if len(download_setting) > 0:
-        download_settings_id = download_setting[0][0]
-        market = download_setting[0][1]
-        tick_interval = download_setting[0][2]
-        data_granulation = download_setting[0][3]
-        stock_type = download_setting[0][4]
-        stock_exchange = download_setting[0][5]
-        print("select done")
-    else:
-        print("no data to download")
-        exit()
-    return download_settings_id, market, tick_interval, data_granulation, stock_type, stock_exchange
 
-download_settings_id, market, tick_interval, data_granulation, stock_type, stock_exchange = get_combination()
+download_settings_id = 5
+market = 'BTCUSDT'
+tick_interval = '1d'
+data_granulation = 'klines'
+stock_type = 'spot'
+stock_exchange = 'Binance.com'
+print("select done settings done")
 
-print(download_settings_id, market, tick_interval, data_granulation, stock_type, stock_exchange)
 
 # download OHLC data from DWH
 def get_ohlc_data():
@@ -49,7 +47,7 @@ def get_ohlc_data():
                                                                                                      "stock_exchange = '" + stock_exchange + "' ")
     df = pd.DataFrame(cursor.fetchall())
     df_bak = df.copy()  # absolutly needed. Simple assignment doesn't work
-    print("data ready")
+    print("OHLC data ready")
     return df, df_bak
 
 df, df_bak = get_ohlc_data()
@@ -106,13 +104,10 @@ def get_test_result(test_stake_in, test_indicator_buy_1_in, test_indicator_value
     # you an combine it with ADX - trend strength by multiply both ie. -1 * 40
     df["token_change_7"] = df["change_val"].rolling(7).sum()
     df["token_trend_7"] = np.where(df["token_change_7"] > 0, 1, -1)
-
     df["token_change_14"] = df["change_val"].rolling(14).sum() # oryginal
     df["token_trend_14"] = np.where(df["token_change_14"] > 0, 1, -1)
-
     df["token_change_50"] = df["change_val"].rolling(50).sum()
     df["token_trend_50"] = np.where(df["token_change_50"] > 0, 1, -1)
-
     df["token_change_100"] = df["change_val"].rolling(100).sum()
     df["token_trend_100"] = np.where(df["token_change_100"] > 0, 1, -1)
 
@@ -131,7 +126,7 @@ def get_test_result(test_stake_in, test_indicator_buy_1_in, test_indicator_value
     df["ema_99"] = pta.ema(df["close"], length=99)
 
     # MACD's
-
+    df["macd"] = ta.MACD
 
     # oscilators
     # RSI
@@ -146,9 +141,20 @@ def get_test_result(test_stake_in, test_indicator_buy_1_in, test_indicator_value
     df["will_perc_r_6"] = pta.willr(df["high"], df["low"], df["close"], 6) #
     df["will_perc_r_10"] = pta.willr(df["high"], df["low"], df["close"], 10) # tradingview corr #williams default
     df["will_perc_r_14"] = pta.willr(df["high"], df["low"], df["close"], 14) # tradingview corr
+    df["will_perc_r_20"] = pta.willr(df["high"], df["low"], df["close"], 14) # tradingview corr
+    df["will_perc_r_24"] = pta.willr(df["high"], df["low"], df["close"], 14) # tradingview corr
 
-    # CCI
-    df["cci_14"] = pta.willr(df["high"], df["low"], df["close"], 14) # tradingview corr ------------------------------this isn't cci, < willr function
+
+    # CCI -- tradingView.. Oversold: -80 - -300/-500 - infinity scale
+    df["cci_7"] = ta.CCI(df["high"], df["low"], df["close"], 7)
+    df["cci_10"] = ta.CCI(df["high"], df["low"], df["close"], 10)
+    df["cci_12"] = ta.CCI(df["high"], df["low"], df["close"], 12)
+    df["cci_14"] = ta.CCI(df["high"], df["low"], df["close"], 14)
+    df["cci_20"] = ta.CCI(df["high"], df["low"], df["close"], 20) # tradingview corr
+    df["cci_24"] = ta.CCI(df["high"], df["low"], df["close"], 24)
+    df["cci_50"] = ta.CCI(df["high"], df["low"], df["close"], 50)
+    df["cci_100"] = ta.CCI(df["high"], df["low"], df["close"], 100)
+
 
     # ROC - rate of change
     df["roc_5"] = pta.roc(df["close"], 5)  # trandingview, ok, checked
@@ -175,6 +181,7 @@ def get_test_result(test_stake_in, test_indicator_buy_1_in, test_indicator_value
     # StochRSI
     #df["stoch_rsi"] = pta.sto
 
+
     # ADX Average directional movement index
     df["adx_7"] = ta.ADX(df["high"], df["low"], df["close"], timeperiod=7)
     df["adx_14"] = ta.ADX(df["high"], df["low"], df["close"]) # standard
@@ -184,11 +191,8 @@ def get_test_result(test_stake_in, test_indicator_buy_1_in, test_indicator_value
 
     df["adxr_14"] = ta.ADXR(df["high"], df["low"], df["close"]) # standard
 
-
-
     # token mod: Trend strength index
     df["token_tsi_14"] = df["token_trend_14"] * df["adx_14"]
-
 
     # volume indicators
     # OBV - On Balance Volume
@@ -224,9 +228,9 @@ def get_test_result(test_stake_in, test_indicator_buy_1_in, test_indicator_value
     # TESTS strategies
 
 
-
     # print(df)
 
+    df.to_excel("exports/export_" + market + "_" + tick_interval + "_" + str(time.time()) + ".xlsx")
 
     test_stake = int(test_stake_in)
     test_indicator_buy_1 = test_indicator_buy_1_in
@@ -240,7 +244,7 @@ def get_test_result(test_stake_in, test_indicator_buy_1_in, test_indicator_value
     test_yield_expect = test_yield_expect_in  # ie. 0.01=1%
     test_wait_periods = test_wait_periods_in  # ie. try to sell in next 6 periods (or 10)
     test_stoploss = -0.05  # must be minus
-    test_stock_fee = -0.0015  # must be minus
+    test_stock_fee = -0.002  # must be minus
 
     df["tst_is_buy_signal"] = np.where((df[test_indicator_buy_1] < test_indicator_value_1)
     #                                   & (df[test_indicator_buy_2] < test_indicator_value_2)
@@ -269,7 +273,8 @@ def get_test_result(test_stake_in, test_indicator_buy_1_in, test_indicator_value
     # print(df.info(verbose=True))
 
     # last check
-    #print(df)
+    print("df1:")
+    print(df)
 
     # df2 aggr
     df2 = df[df["tst_is_buy_signal"] == 1].groupby(["open_time_yr", "open_time_mnt"]).\
@@ -279,7 +284,7 @@ def get_test_result(test_stake_in, test_indicator_buy_1_in, test_indicator_value
                    #"tst_single_game_earn_minus_fees_with_stoploss": "sum"
                    })
     df2['earn_sign'] = np.sign(df2["tst_single_game_earn_minus_fees"])
-    # print(df2)
+    print(df2)
 
 
     df3 = df[df["tst_is_buy_signal"] == 1].groupby(["open_time_yr"]).\
@@ -289,7 +294,7 @@ def get_test_result(test_stake_in, test_indicator_buy_1_in, test_indicator_value
                    #"tst_single_game_earn_minus_fees_with_stoploss": "sum"
                    })
     df3['earn_sign'] = np.sign(df3["tst_single_game_earn_minus_fees"])
-    # print(df3)
+    print(df3)
 
     # statistics
 
@@ -300,7 +305,7 @@ def get_test_result(test_stake_in, test_indicator_buy_1_in, test_indicator_value
                    })
 
 
-    # print(df4)
+    print(df4)
 
     # jsons with results
     result_string_1 = pd.DataFrame.to_json(df2)
@@ -315,4 +320,11 @@ def get_test_result(test_stake_in, test_indicator_buy_1_in, test_indicator_value
     return result_string_1, result_string_2, result_string_3, score_1, score_2, score_3, score_4
 
 
+###################################################### LICZBA NIE ELEMENT
 
+
+
+
+
+
+get_test_result(100, 'rsi_6', 0.2, 0.01, 6)

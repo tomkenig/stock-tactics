@@ -1,5 +1,8 @@
 # todo: update and lock records
-# todo: zero-devide error in data frame
+# todo: sessions and multi device computing
+# todo: FIXED 2021/10/15: zero-devide error in data frame when calculating score_3 and score_4
+# todo: FIX: error when indicator does not exist ie: case sensi.... OR any other
+# todo: earnings with and without fees
 """
 pip install mysql-connector-python
 pip install pandas
@@ -12,33 +15,36 @@ import pandas as pd
 import numpy as np
 import pandas_ta as pta  # https://mrjbq7.github.io/ta-lib/
 import talib as ta  # install from whl file < https://www.lfd.uci.edu/~gohlke/pythonlibs/#ta-lib
-from hashlib import md5
 import json
 import time
+import uuid  # https://docs.python.org/3/library/uuid.html
 
 db_schema_name, db_table_name, db_settings_table_name = db_tables()
 cursor, cnxn = db_connect()
 
-TACTICS_PACK_SIZE = 50000
+TACTICS_PACK_SIZE = 5000
 
 # create session identifier with md5
-#app_session = md5(str(datetime.datetime.utcnow()).encode("ascii")).hexdigest()
-#print(app_session)
-#time.sleep(3)
+def create_session_uuid():
+    tactic_sess_uuid = str(uuid.uuid1())
+    return tactic_sess_uuid
+
+tactic_session_uuid = create_session_uuid()
+
 
 
 # todo: not need to use all params. just use download_settings_id
 # todo: combination table. Can be stored in other schema
 def get_combination():
-    cursor.execute("SELECT download_settings_id, market, tick_interval, data_granulation, stock_type, stock_exchange FROM " + db_schema_name + ".vw_tactics_tests_to_analyse where tick_interval <> '15m' and tactic_status_id = 0 limit 1")
-    download_setting = cursor.fetchall()
-    if len(download_setting) > 0:
-        download_settings_id = download_setting[0][0]
-        market = download_setting[0][1]
-        tick_interval = download_setting[0][2]
-        data_granulation = download_setting[0][3]
-        stock_type = download_setting[0][4]
-        stock_exchange = download_setting[0][5]
+    cursor.execute("SELECT download_settings_id, market, tick_interval, data_granulation, stock_type, stock_exchange FROM " + db_schema_name + ".vw_tactics_tests_to_analyse where tactic_status_id = 0 limit 1")
+    download_settings = cursor.fetchall()
+    if len(download_settings) > 0:
+        download_settings_id = download_settings[0][0]
+        market = download_settings[0][1]
+        tick_interval = download_settings[0][2]
+        data_granulation = download_settings[0][3]
+        stock_type = download_settings[0][4]
+        stock_exchange = download_settings[0][5]
         print("select done settings done")
     else:
         print("no data to download")
@@ -51,52 +57,38 @@ print(download_settings_id, market, tick_interval, data_granulation, stock_type,
 
 # download OHLC data from DWH
 def get_ohlc_data():
-    cursor.execute("SELECT * FROM " + db_schema_name + ".vw_binance_klines_anl where market = '"+market+"' and "
-                                                                                                     "tick_interval = '" + tick_interval + "' and "
-                                                                                                     "data_granulation = '"+ data_granulation + "' and "
-                                                                                                     "stock_type = '" + stock_type + "' and "
-                                                                                                     "stock_exchange = '" + stock_exchange + "' ")
+    cursor.execute("SELECT open_time, open, high, low, close, volume, close_time, "
+                   "quote_asset_volume, number_of_trades, taker_buy_base_asset_volume, "
+                   "taker_buy_quote_asset_volume, `ignore`, market, tick_interval, data_granulation, "
+                   "stock_type, stock_exchange, download_settings_id, insert_timestamp,"
+                   " open_datetime, close_datetime FROM " + db_schema_name + ".vw_binance_klines_anl where download_settings_id = "+ str(download_settings_id) +" ")
     df = pd.DataFrame(cursor.fetchall())
-    df_bak = df.copy()  # absolutly needed. Simple assignment doesn't work
     print("OHLC data ready")
-    return df, df_bak
-
-df, df_bak = get_ohlc_data()
-
-print(df)
+    return df
 
 
-def get_tactics_to_check():
-    cursor.execute("SELECT tactic_id, download_settings_id, test_stake, buy_indicator_1_name, buy_indicator_1_value, yield_expected, wait_periods "
-                   "FROM " + db_schema_name + ".vw_tactics_tests_to_analyse where tactic_status_id = 0 and download_settings_id = "+ str(download_settings_id) + " limit " + str(TACTICS_PACK_SIZE) +" ")
-    tactics_data = cursor.fetchall()
-    return tactics_data
-
-tactics_data = get_tactics_to_check()
-
-
-def get_test_result(test_stake_in, test_indicator_buy_1_in, test_indicator_value_1_in, test_yield_expect_in, test_wait_periods_in):
-    df.columns =["open_time",
-                 "open",
-                 "high",
-                 "low",
-                 "close",
-                 "volume",
-                 "close_time",
-                 "quote_asset_volume",
-                 "number_of_trades",
-                 "taker_buy_base_asset_volume",
-                 "taker_buy_quote_asset_volume",
-                 "ignore",
-                 "market",
-                 "tick_interval",
-                 "data_granulation",
-                 "stock_type",
-                 "stock_exchange",
-                 "insert_timestamp",
-                 "open_datetime",
-                 "close_datetime"]
-
+def get_measures():
+    df.columns = ["open_time",
+                  "open",
+                  "high",
+                  "low",
+                  "close",
+                  "volume",
+                  "close_time",
+                  "quote_asset_volume",
+                  "number_of_trades",
+                  "taker_buy_base_asset_volume",
+                  "taker_buy_quote_asset_volume",
+                  "ignore",
+                  "market",
+                  "tick_interval",
+                  "data_granulation",
+                  "stock_type",
+                  "stock_exchange",
+                  "download_settings_id",
+                  "insert_timestamp",
+                  "open_datetime",
+                  "close_datetime"]
 
     # basics
     df["open_time_dt"] = pd.to_datetime(df["open_datetime"], unit='ms')
@@ -115,7 +107,7 @@ def get_test_result(test_stake_in, test_indicator_buy_1_in, test_indicator_value
     # you an combine it with ADX - trend strength by multiply both ie. -1 * 40
     df["token_change_7"] = df["change_val"].rolling(7).sum()
     df["token_trend_7"] = np.where(df["token_change_7"] > 0, 1, -1)
-    df["token_change_14"] = df["change_val"].rolling(14).sum() # oryginal
+    df["token_change_14"] = df["change_val"].rolling(14).sum()  # oryginal
     df["token_trend_14"] = np.where(df["token_change_14"] > 0, 1, -1)
     df["token_change_50"] = df["change_val"].rolling(50).sum()
     df["token_trend_50"] = np.where(df["token_change_50"] > 0, 1, -1)
@@ -138,23 +130,23 @@ def get_test_result(test_stake_in, test_indicator_buy_1_in, test_indicator_value
 
     # MACD's
 
-
     # oscilators
     # RSI
-    df["rsi_6"] = ta.RSI(df["close"], timeperiod=6) # tradingview corr, ok, checked
-    df["rsi_10"] = ta.RSI(df["close"], timeperiod=10) # tradingview corr, ok, checked
-    df["rsi_12"] = ta.RSI(df["close"], timeperiod=12) # tradingview corr, ok, checked
-    df["rsi_14"] = ta.RSI(df["close"], timeperiod=14) # tradingview corr, ok, checked
-    df["rsi_20"] = ta.RSI(df["close"], timeperiod=20) # tradingview corr, ok, checked
-    df["rsi_24"] = ta.RSI(df["close"], timeperiod=24) # tradingview corr, ok, checked
+    df["rsi_6"] = ta.RSI(df["close"], timeperiod=6)  # tradingview corr, ok, checked
+    df["rsi_10"] = ta.RSI(df["close"], timeperiod=10)  # tradingview corr, ok, checked
+    df["rsi_12"] = ta.RSI(df["close"], timeperiod=12)  # tradingview corr, ok, checked
+    df["rsi_14"] = ta.RSI(df["close"], timeperiod=14)  # tradingview corr, ok, checked
+    df["rsi_20"] = ta.RSI(df["close"], timeperiod=20)  # tradingview corr, ok, checked
+    df["rsi_24"] = ta.RSI(df["close"], timeperiod=24)  # tradingview corr, ok, checked
 
     # Williams %R
-    df["will_perc_r_6"] = pta.willr(df["high"], df["low"], df["close"], 6) #
-    df["will_perc_r_10"] = pta.willr(df["high"], df["low"], df["close"], 10) # tradingview corr #williams default
-    df["will_perc_r_14"] = pta.willr(df["high"], df["low"], df["close"], 14) # tradingview corr
+    df["will_perc_r_6"] = pta.willr(df["high"], df["low"], df["close"], 6)  #
+    df["will_perc_r_10"] = pta.willr(df["high"], df["low"], df["close"], 10)  # tradingview corr #williams default
+    df["will_perc_r_14"] = pta.willr(df["high"], df["low"], df["close"], 14)  # tradingview corr
 
     # CCI
-    df["cci_14"] = pta.willr(df["high"], df["low"], df["close"], 14) # tradingview corr ------------------------------this isn't cci, < willr function
+    df["cci_14"] = pta.willr(df["high"], df["low"], df["close"],
+                             14)  # tradingview corr ------------------------------this isn't cci, < willr function
 
     # ROC - rate of change
     df["roc_5"] = pta.roc(df["close"], 5)  # trandingview, ok, checked
@@ -174,27 +166,22 @@ def get_test_result(test_stake_in, test_indicator_buy_1_in, test_indicator_value
     df["stoch_fastk_5_3"], df["stoch_fastd_5_3"] = ta.STOCHF(df["high"], df["low"], df["close"])  # ta-lib standard
 
     df["stoch_slowk_14_3"], df["stoch_slowd_14_3"] = ta.STOCH(df["high"], df["low"], df["close"])
-    df["stoch_fastk_14_3"], df["stoch_fastd_14_3"] = ta.STOCHF(df["high"], df["low"], df["close"], fastk_period=14)  # tradingview ok, checked
-
-
+    df["stoch_fastk_14_3"], df["stoch_fastd_14_3"] = ta.STOCHF(df["high"], df["low"], df["close"],
+                                                               fastk_period=14)  # tradingview ok, checked
 
     # StochRSI
-    #df["stoch_rsi"] = pta.sto
+    # df["stoch_rsi"] = pta.sto
 
     # ADX Average directional movement index
     df["adx_7"] = ta.ADX(df["high"], df["low"], df["close"], timeperiod=7)
-    df["adx_14"] = ta.ADX(df["high"], df["low"], df["close"]) # standard
+    df["adx_14"] = ta.ADX(df["high"], df["low"], df["close"])  # standard
     df["adx_50"] = ta.ADX(df["high"], df["low"], df["close"], timeperiod=50)
     df["adx_100"] = ta.ADX(df["high"], df["low"], df["close"], timeperiod=100)
 
-
-    df["adxr_14"] = ta.ADXR(df["high"], df["low"], df["close"]) # standard
-
-
+    df["adxr_14"] = ta.ADXR(df["high"], df["low"], df["close"])  # standard
 
     # token mod: Trend strength index
     df["token_tsi_14"] = df["token_trend_14"] * df["adx_14"]
-
 
     # volume indicators
     # OBV - On Balance Volume
@@ -211,27 +198,40 @@ def get_test_result(test_stake_in, test_indicator_buy_1_in, test_indicator_value
     df["cdl_takuri"] = ta.CDLTAKURI(df["open"], df["high"], df["low"], df["close"])
     df["cdl_3white_soldiers"] = ta.CDL3WHITESOLDIERS(df["open"], df["high"], df["low"], df["close"])
 
-
     # combined token
     # RSI rise 1 period
-    #df["rsi_6_rise_1_period"] = np.where(df["rsi_6"] > df["rsi_6"].shift(1), 1, 0)
+    # df["rsi_6_rise_1_period"] = np.where(df["rsi_6"] > df["rsi_6"].shift(1), 1, 0)
 
     # MFI raise 1 period
-    #df["mfi_7_rise_1_period"] = np.where(df["mfi_7"] > df["mfi_7"].shift(1), 1, 0)
+    # df["mfi_7_rise_1_period"] = np.where(df["mfi_7"] > df["mfi_7"].shift(1), 1, 0)
 
     # volume twice, two green after red
     df["volume_twice_two_green_after_red"] = np.where((df["up_down"] == 1)
                                                       & (df["up_down"].shift(1) == 1)
                                                       & (df["up_down"].shift(2) == 0)
                                                       & (df["volume"] / df["volume"].shift(1) >= 1.2), 1, 0)
+    df_bak = df.copy()  # absolutly needed. Simple assignment doesn't work
+    return df, df_bak
+
+
+
+def get_tactics_to_check():
+    cursor.execute("SELECT tactic_id, download_settings_id, test_stake, buy_indicator_1_name, buy_indicator_1_value, yield_expected, wait_periods "
+                   "FROM " + db_schema_name + ".vw_tactics_tests_to_analyse where tactic_status_id = 0 and download_settings_id = "+ str(download_settings_id) + " limit " + str(TACTICS_PACK_SIZE) +" ")
+    tactics_data = cursor.fetchall()
+    return tactics_data
+
+tactics_data = get_tactics_to_check()
+
+
+
+def get_test_result(test_stake_in, test_indicator_buy_1_in, test_indicator_value_1_in, test_yield_expect_in, test_wait_periods_in):
 
     # TESTS strategies
     # TESTS strategies
     # TESTS strategies
-
 
     # print(df)
-
 
     test_stake = int(test_stake_in)
     test_indicator_buy_1 = test_indicator_buy_1_in
@@ -303,9 +303,7 @@ def get_test_result(test_stake_in, test_indicator_buy_1_in, test_indicator_value
                    "tst_single_game_earn_minus_fees": "sum"
                    #"tst_single_game_earn_minus_fees_with_stoploss": "sum"
                    })
-
-
-    # print(df4)
+    #print(df4)
 
     # jsons with results
     result_string_1 = pd.DataFrame.to_json(df2)
@@ -313,25 +311,34 @@ def get_test_result(test_stake_in, test_indicator_buy_1_in, test_indicator_value
     result_string_3 = pd.DataFrame.to_json(df4)
     score_1 = df4["tst_is_buy_signal"]
     score_2 = df4["tst_single_game_earn_minus_fees"]
-    score_3 = df2["earn_sign"].sum() / df2["earn_sign"].count()
-    score_4 = df3["earn_sign"].sum() / df3["earn_sign"].count()
+    score_3 = df2["earn_sign"].sum() / df2["earn_sign"].count() if df2["earn_sign"].count() > 0 else 0
+    score_4 = df3["earn_sign"].sum() / df3["earn_sign"].count() if df3["earn_sign"].count() > 0 else 0
 
 
     return result_string_1, result_string_2, result_string_3, score_1, score_2, score_3, score_4
 
+
+
+
+
+df = get_ohlc_data()
+df, df_bak = get_measures()
+# print(df)
+
 print("main loop start:")
 print(len(tactics_data)-1)
+
 ###################################################### LICZBA NIE ELEMENT
 for i in range(len(tactics_data)-1): # in tactics_data:
-    #print(i)
+    print(i)
     #i = 1
     result_string_1, result_string_2, result_string_3, score_1, score_2, score_3, score_4 = get_test_result(int(tactics_data[i][2]), tactics_data[i][3], tactics_data[i][4], tactics_data[i][5], tactics_data[i][6])
-    #print(result_string_1, result_string_2, result_string_3, score_1, score_2, score_3, score_4)
+    # print(result_string_1, result_string_2, result_string_3, score_1, score_2, score_3, score_4)
 
 
 
     # update - test status done
-    cursor.execute("UPDATE " + db_schema_name + ".tactics_tests SET tactic_status_id = 2 where tactic_id = " + str(tactics_data[i][0]) + " ")
+    cursor.execute("UPDATE " + db_schema_name + ".tactics_tests SET tactic_status_id = 2, tactic_session_uuid = '" + tactic_session_uuid + "' where tactic_id = " + str(tactics_data[i][0]) + " ")
     print("update done")
     cnxn.commit()
 
@@ -344,7 +351,7 @@ for i in range(len(tactics_data)-1): # in tactics_data:
 
     print("insert done or not")
     df = df_bak.copy()  # absolutly needed. Simple assignment doesn't work in pandas
-    #print(df)
+    # print(df)
     cnxn.commit()
 
 
