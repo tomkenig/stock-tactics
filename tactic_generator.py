@@ -16,6 +16,8 @@ download_settings_id = [2, 3] #, 4, 5] # , 6, 7, 10, 11]
 test_stake = [100]
 buy_indicator_1_name = ["rsi_6", "rsi_10", "rsi_12", "rsi_14"] #, "rsi_20", "rsi_24"]
 buy_indicator_1_value = [0.05, 0.1, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50]
+buy_indicator_1_operator = ["<"]
+
 # sell_indicator_1_name
 # sell_indicator_1_value
 yield_expected = [0.003, 0.004, 0.005, 0.006, 0.007, 0.008, 0.009, 0.01, 0.011, 0.012, 0.013, 0.014, 0.015, 0.016,
@@ -45,6 +47,7 @@ download_settings_id = [2, 3] #, 4, 5] # , 6, 7, 10, 11]
 test_stake = [100]
 buy_indicator_1_name = ["roc_5", "roc_6", "roc_9", "roc_10", "roc_12", "roc_14"] #, "roc_24"]
 buy_indicator_1_value = [-0.05, -0.1, -0.50, -1, -1.5, -2, -2.5, -3, -3.5, -4, -4.5, -5, -5.5, -6, -6.5,  -7, -8, -9, -10]
+buy_indicator_1_operator = ["<"]
 # sell_indicator_1_name
 # sell_indicator_1_value
 yield_expected = [0.003, 0.004, 0.005, 0.006, 0.007, 0.008, 0.009, 0.01, 0.011, 0.012, 0.013, 0.014, 0.015, 0.016,
@@ -74,6 +77,7 @@ download_settings_id = [2, 3] #, 4, 5] # , 6, 7, 10, 11]
 test_stake = [100]
 buy_indicator_1_name = ["will_perc_r_6", "will_perc_r_10", "will_perc_r_14"]
 buy_indicator_1_value = [-1, -0.9, -0.8, -0.75, -0.7, -0.6, -0.5, -0.4, -0.3, -0.2, -0.1]
+buy_indicator_1_operator = ["<"]
 # sell_indicator_1_name
 # sell_indicator_1_value
 yield_expected = [0.003, 0.004, 0.005, 0.006, 0.007, 0.008, 0.009, 0.01, 0.011, 0.012, 0.013, 0.014, 0.015, 0.016,
@@ -103,6 +107,7 @@ download_settings_id = [2, 3] #, 4, 5] # , 6, 7, 10, 11]
 test_stake = [100]
 buy_indicator_1_name = ["mfi_7", "mfi_14"]
 buy_indicator_1_value = [5, 1, 15, 20, 25, 30, 35, 40, 45, 50]
+buy_indicator_1_operator = ["<"]
 # sell_indicator_1_name
 # sell_indicator_1_value
 yield_expected = [0.003, 0.004, 0.005, 0.006, 0.007, 0.008, 0.009, 0.01, 0.011, 0.012, 0.013, 0.014, 0.015, 0.016,

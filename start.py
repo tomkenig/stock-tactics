@@ -3,6 +3,7 @@
 # todo: FIXED 2021/10/15: zero-devide error in data frame when calculating score_3 and score_4
 # todo: FIX: error when indicator does not exist ie: case sensi.... OR any other
 # todo: earnings with and without fees
+# todo: insert and update can be on the end of pre program. It will cost less
 """
 pip install mysql-connector-python
 pip install pandas
@@ -26,8 +27,8 @@ TACTICS_PACK_SIZE = 5000
 
 # create session identifier with md5
 def create_session_uuid():
-    tactic_sess_uuid = str(uuid.uuid1())
-    return tactic_sess_uuid
+    tactic_session_uuid = str(uuid.uuid1())
+    return tactic_session_uuid
 
 tactic_session_uuid = create_session_uuid()
 
@@ -36,7 +37,9 @@ tactic_session_uuid = create_session_uuid()
 # todo: not need to use all params. just use download_settings_id
 # todo: combination table. Can be stored in other schema
 def get_combination():
-    cursor.execute("SELECT download_settings_id, market, tick_interval, data_granulation, stock_type, stock_exchange FROM " + db_schema_name + ".vw_tactics_tests_to_analyse where tactic_status_id = 0 limit 1")
+    cursor.execute("SELECT download_settings_id, market, tick_interval, data_granulation, stock_type, "
+                   "stock_exchange FROM " + db_schema_name + ".vw_tactics_tests_to_analyse where tactic_status_id = 0 "
+                                                             "AND tactic_session_uuid is null limit 1")
     download_settings = cursor.fetchall()
     if len(download_settings) > 0:
         download_settings_id = download_settings[0][0]
@@ -57,6 +60,8 @@ print(download_settings_id, market, tick_interval, data_granulation, stock_type,
 
 # download OHLC data from DWH
 def get_ohlc_data():
+    # cursor.execute("UPDATE " + db_schema_name + ".vw_tactics_tests_to_analyse set  where download_settings_id = " + str(download_settings_id) + " ")
+
     cursor.execute("SELECT open_time, open, high, low, close, volume, close_time, "
                    "quote_asset_volume, number_of_trades, taker_buy_base_asset_volume, "
                    "taker_buy_quote_asset_volume, `ignore`, market, tick_interval, data_granulation, "
@@ -216,7 +221,7 @@ def get_measures():
 
 
 def get_tactics_to_check():
-    cursor.execute("SELECT tactic_id, download_settings_id, test_stake, buy_indicator_1_name, buy_indicator_1_value, yield_expected, wait_periods "
+    cursor.execute("SELECT tactic_id, download_settings_id, test_stake, buy_indicator_1_name, buy_indicator_1_value, buy_indicator_1_operator,  yield_expected, wait_periods "
                    "FROM " + db_schema_name + ".vw_tactics_tests_to_analyse where tactic_status_id = 0 and download_settings_id = "+ str(download_settings_id) + " limit " + str(TACTICS_PACK_SIZE) +" ")
     tactics_data = cursor.fetchall()
     return tactics_data
@@ -225,14 +230,7 @@ tactics_data = get_tactics_to_check()
 
 
 
-def get_test_result(test_stake_in, test_indicator_buy_1_in, test_indicator_value_1_in, test_yield_expect_in, test_wait_periods_in):
-
-    # TESTS strategies
-    # TESTS strategies
-    # TESTS strategies
-
-    # print(df)
-
+def get_test_result(test_stake_in, test_indicator_buy_1_in, test_indicator_value_1_in, buy_indicator_1_operator_in, test_yield_expect_in, test_wait_periods_in):
     test_stake = int(test_stake_in)
     test_indicator_buy_1 = test_indicator_buy_1_in
     #test_indicator_buy_2 = "token_trend_50"
@@ -247,11 +245,13 @@ def get_test_result(test_stake_in, test_indicator_buy_1_in, test_indicator_value
     test_stoploss = -0.05  # must be minus
     test_stock_fee = -0.002  # must be minus
 
-    df["tst_is_buy_signal"] = np.where((df[test_indicator_buy_1] < test_indicator_value_1)
-    #                                   & (df[test_indicator_buy_2] < test_indicator_value_2)
-    #                                   & (df[test_indicator_buy_3] < test_indicator_value_3)
-    #                                   & (df[test_indicator_buy_4] > test_indicator_value_4)
-                                       , 1, 0)
+    #signal and operator from exec
+    exec('df["tst_is_buy_signal"] = np.where((df[test_indicator_buy_1] '+ buy_indicator_1_operator_in +' test_indicator_value_1), 1, 0)')
+                                       #                                   & (df[test_indicator_buy_2] < test_indicator_value_2)
+                                       #                                   & (df[test_indicator_buy_3] < test_indicator_value_3)
+                                       #                                   & (df[test_indicator_buy_4] > test_indicator_value_4)
+                                       #, 1, 0)
+
 
     df["tst_sell_price"] = df["close"] * test_yield_expect + df["close"]
     df["tst_sell_stoploss_price"] = df["close"] + df["close"] * test_stoploss # must be plus
@@ -332,13 +332,13 @@ print(len(tactics_data)-1)
 for i in range(len(tactics_data)-1): # in tactics_data:
     print(i)
     #i = 1
-    result_string_1, result_string_2, result_string_3, score_1, score_2, score_3, score_4 = get_test_result(int(tactics_data[i][2]), tactics_data[i][3], tactics_data[i][4], tactics_data[i][5], tactics_data[i][6])
+    result_string_1, result_string_2, result_string_3, score_1, score_2, score_3, score_4 = get_test_result(int(tactics_data[i][2]), tactics_data[i][3], tactics_data[i][4], tactics_data[i][5], tactics_data[i][6], tactics_data[i][7])
     # print(result_string_1, result_string_2, result_string_3, score_1, score_2, score_3, score_4)
 
 
 
     # update - test status done
-    cursor.execute("UPDATE " + db_schema_name + ".tactics_tests SET tactic_status_id = 2, tactic_session_uuid = '" + tactic_session_uuid + "' where tactic_id = " + str(tactics_data[i][0]) + " ")
+    cursor.execute("UPDATE " + db_schema_name + ".tactics_tests SET tactic_status_id = 2 where tactic_id = " + str(tactics_data[i][0]) + " ")
     print("update done")
     cnxn.commit()
 
