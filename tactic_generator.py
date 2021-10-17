@@ -45,8 +45,8 @@ cnxn.commit()
 # tastics_for_tests ROC
 download_settings_id = [2, 3] #, 4, 5] # , 6, 7, 10, 11]
 test_stake = [100]
-buy_indicator_1_name = ["roc_5", "roc_6", "roc_9", "roc_10", "roc_12", "roc_14"] #, "roc_24"]
-buy_indicator_1_value = [-0.05, -0.1, -0.50, -1, -1.5, -2, -2.5, -3, -3.5, -4, -4.5, -5, -5.5, -6, -6.5,  -7, -8, -9, -10]
+buy_indicator_1_name = ["roc_5", "roc_6", "roc_9", "roc_10", "roc_12", "roc_14", "roc_24"]
+buy_indicator_1_value = [-0.05, -0.1, -0.50, -1, -1.5, -2, -2.5, -3, -3.5, -4, -4.5, -5, -5.5, -6, -6.5,  -7, -8, -9, -10, -11, -12, -13, -14, -15]
 buy_indicator_1_operator = ["<"]
 # sell_indicator_1_name
 # sell_indicator_1_value

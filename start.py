@@ -3,7 +3,8 @@
 # todo: FIXED 2021/10/15: zero-devide error in data frame when calculating score_3 and score_4
 # todo: FIX: error when indicator does not exist ie: case sensi.... OR any other
 # todo: earnings with and without fees
-# todo: insert and update can be on the end of pre program. It will cost less
+# todo: insert and update can be on the end of the program. It will cost less. Think about
+# todo: FIXED 2021/10/17 last record problem in tactics table - solved
 """
 pip install mysql-connector-python
 pip install pandas
@@ -327,9 +328,12 @@ df, df_bak = get_measures()
 
 print("main loop start:")
 print(len(tactics_data)-1)
+print(len(tactics_data))
+
+print(tactics_data)
 
 ###################################################### LICZBA NIE ELEMENT
-for i in range(len(tactics_data)-1): # in tactics_data:
+for i in range(len(tactics_data)): # in tactics_data:
     print(i)
     #i = 1
     result_string_1, result_string_2, result_string_3, score_1, score_2, score_3, score_4 = get_test_result(int(tactics_data[i][2]), tactics_data[i][3], tactics_data[i][4], tactics_data[i][5], tactics_data[i][6], tactics_data[i][7])
