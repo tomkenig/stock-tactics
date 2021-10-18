@@ -24,7 +24,7 @@ import uuid  # https://docs.python.org/3/library/uuid.html
 db_schema_name, db_table_name, db_settings_table_name = db_tables()
 cursor, cnxn = db_connect()
 
-TACTICS_PACK_SIZE = 5000
+TACTICS_PACK_SIZE = 500000
 
 # create session identifier with md5
 def create_session_uuid():
@@ -40,7 +40,7 @@ tactic_session_uuid = create_session_uuid()
 def get_combination():
     cursor.execute("SELECT download_settings_id, market, tick_interval, data_granulation, stock_type, "
                    "stock_exchange FROM " + db_schema_name + ".vw_tactics_tests_to_analyse where tactic_status_id = 0 "
-                                                             "AND tactic_session_uuid is null limit 1")
+                                                             "AND tactic_session_uuid is null order by download_settings_id desc limit 1")
     download_settings = cursor.fetchall()
     if len(download_settings) > 0:
         download_settings_id = download_settings[0][0]
@@ -162,6 +162,9 @@ def get_measures():
     df["roc_12"] = pta.roc(df["close"], 12)  # trandingview typical, ok, checked
     df["roc_14"] = pta.roc(df["close"], 14)  # trandingview typical, ok, checked
     df["roc_24"] = pta.roc(df["close"], 24)  # trandingview typical, ok, checked
+    df["roc_50"] = pta.roc(df["close"], 50)  # trandingview typical, ok, checked
+    df["roc_100"] = pta.roc(df["close"], 100)  # trandingview typical, ok, checked
+    df["roc_200"] = pta.roc(df["close"], 200)  # trandingview typical, ok, checked
 
     # MFI - money flow index
     df["mfi_7"] = pta.mfi(df["high"], df["low"], df["close"], df["volume"])  # trandingview, ok, checked
@@ -328,9 +331,9 @@ df, df_bak = get_measures()
 
 print("main loop start:")
 print(len(tactics_data)-1)
-print(len(tactics_data))
+# print(len(tactics_data))
 
-print(tactics_data)
+# print(tactics_data)
 
 ###################################################### LICZBA NIE ELEMENT
 for i in range(len(tactics_data)): # in tactics_data:

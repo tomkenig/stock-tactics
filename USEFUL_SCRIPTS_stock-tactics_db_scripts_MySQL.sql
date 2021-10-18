@@ -1,13 +1,16 @@
 -- create table tactics_tests_results_bak_20211015 as
 SELECT 
-*
+ttr.*, tt.*,
+score_2 / score_1  as score_5
  FROM m1174_stock_dwh.tactics_tests_results  ttr
 left join tactics_tests tt on ttr.tactic_id = tt.tactic_id
  where score_2 >= 1000
-  -- and buy_indicator_1_name not like '%roc%'
 and score_4 = 1
--- and wait_periods <= 20
-  -- and tt.download_settings_id <> 3
+and wait_periods <= 20
+and score_1 > 1000
+-- and buy_indicator_1_value between -2 and 0
+-- and ttr.tactic_id = 481832
+-- order by score_5 desc, score_3 desc, score_2 desc
 order by score_3 desc, score_2 desc
 limit 10000
 ;

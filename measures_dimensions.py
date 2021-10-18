@@ -164,6 +164,9 @@ def get_test_result(test_stake_in, test_indicator_buy_1_in, test_indicator_value
     df["roc_12"] = pta.roc(df["close"], 12)  # trandingview typical, ok, checked
     df["roc_14"] = pta.roc(df["close"], 14)  # trandingview typical, ok, checked
     df["roc_24"] = pta.roc(df["close"], 24)  # trandingview typical, ok, checked
+    df["roc_50"] = pta.roc(df["close"], 50)  # trandingview typical, ok, checked
+    df["roc_100"] = pta.roc(df["close"], 100)  # trandingview typical, ok, checked
+    df["roc_200"] = pta.roc(df["close"], 200)  # trandingview typical, ok, checked
 
     # MFI - money flow index
     df["mfi_7"] = pta.mfi(df["high"], df["low"], df["close"], df["volume"])  # trandingview, ok, checked
