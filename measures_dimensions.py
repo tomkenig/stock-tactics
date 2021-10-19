@@ -20,23 +20,18 @@ import openpyxl
 db_schema_name, db_table_name, db_settings_table_name = db_tables()
 cursor, cnxn = db_connect()
 
-TACTICS_PACK_SIZE = 50000
-
-# create session identifier with md5
-tactic_uuid = str(uuid.uuid1())
-
 
 # todo: not need to use all params. just use download_settings_id
 # todo: combination table. Can be stored in other schema
 
 download_settings_id = 5
 market = 'BTCUSDT'
-tick_interval = '1d'
+tick_interval = '15m'
 data_granulation = 'klines'
 stock_type = 'spot'
 stock_exchange = 'Binance.com'
 print("select done settings done")
-
+TACTICS_PACK_SIZE = 500000
 
 # download OHLC data from DWH
 def get_ohlc_data():
@@ -82,6 +77,7 @@ def get_test_result(test_stake_in, test_indicator_buy_1_in, test_indicator_value
                  "data_granulation",
                  "stock_type",
                  "stock_exchange",
+                 "download_settings_id",
                  "insert_timestamp",
                  "open_datetime",
                  "close_datetime"]
@@ -233,7 +229,7 @@ def get_test_result(test_stake_in, test_indicator_buy_1_in, test_indicator_value
 
     # print(df)
 
-    df.to_excel("exports/export_" + market + "_" + tick_interval + "_" + str(time.time()) + ".xlsx")
+
 
     test_stake = int(test_stake_in)
     test_indicator_buy_1 = test_indicator_buy_1_in
@@ -270,6 +266,8 @@ def get_test_result(test_stake_in, test_indicator_buy_1_in, test_indicator_value
     # todo: single game result with stoploss. Need improvement
     df["tst_single_game_earn_minus_fees_with_stoploss"] = np.where(df['tst_sell_after_stoploss'] == 1 , test_stake * test_stoploss + df["tst_buy_sell_fee"], df["tst_single_game_earn_minus_fees"])
 
+
+    df.to_excel("exports/export_" + market + "_" + tick_interval + "_" + str(time.time()) + ".xlsx")
 
     # test_name = "tst_" & market & "_" & tick_interval & "_" & test_indicator_buy_1
 
@@ -330,4 +328,4 @@ def get_test_result(test_stake_in, test_indicator_buy_1_in, test_indicator_value
 
 
 
-get_test_result(100, 'rsi_6', 0.2, 0.01, 6)
+get_test_result(100, 'roc_24', -12, 0.3, 100)
