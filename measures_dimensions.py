@@ -129,6 +129,11 @@ def get_test_result(test_stake_in, test_indicator_buy_1_in, test_indicator_value
     df["sma_100"] = pta.sma(df["close"], length=100)
     df["sma_200"] = pta.sma(df["close"], length=200)
 
+    # SMA crosses
+    # 1-fast higher than slow ; 2-fast lower than slow, 3 - cross period gold ; 4- cross period death
+    df["sma_7_14_cross"]
+
+
     # WMA (Weighted)
     df["wma_7"] = pta.wma(df["close"], length=7)
     df["wma_14"] = pta.wma(df["close"], length=14)
