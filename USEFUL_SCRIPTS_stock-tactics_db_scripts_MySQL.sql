@@ -6,13 +6,15 @@ score_2 / score_1  as score_5
 left join tactics_tests tt on ttr.tactic_id = tt.tactic_id
  where score_2 >= 1000
 and score_4 = 1
-and wait_periods <= 10
+and wait_periods <= 8
+and score_3 >= 0.7
+-- and buy_indicator_1_value > -3
 -- and score_1 > 1000
 -- and buy_indicator_1_value between -2 and 0
--- and ttr.tactic_id = (481832, 507327) -- good tactics
+-- and ttr.tactic_id in (481832, 507327) -- good tactics
 -- order by score_5 desc, score_3 desc, score_2 desc
-and ttr.download_settings_id = 2
-order by score_3 desc, score_2 desc
+-- ttr.download_settings_id = 2
+order by score_5 desc, score_2 desc, score_3 desc
 limit 10000
 ;
 

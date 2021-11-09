@@ -24,12 +24,13 @@ cursor, cnxn = db_connect()
 # todo: not need to use all params. just use download_settings_id
 # todo: combination table. Can be stored in other schema
 
-download_settings_id = 5
+download_settings_id = 3
 market = 'BTCUSDT'
 tick_interval = '15m'
 data_granulation = 'klines'
 stock_type = 'spot'
 stock_exchange = 'Binance.com'
+open_time = str(1631042226) + '000'
 print("select done settings done")
 TACTICS_PACK_SIZE = 500000
 
@@ -39,6 +40,7 @@ def get_ohlc_data():
                                                                                                      "tick_interval = '" + tick_interval + "' and "
                                                                                                      "data_granulation = '"+ data_granulation + "' and "
                                                                                                      "stock_type = '" + stock_type + "' and "
+                                                                                                     "open_time >= '" + open_time + "' and "                               
                                                                                                      "stock_exchange = '" + stock_exchange + "' ")
     df = pd.DataFrame(cursor.fetchall())
     df_bak = df.copy()  # absolutly needed. Simple assignment doesn't work
@@ -102,27 +104,55 @@ def get_test_result(test_stake_in, test_indicator_buy_1_in, test_indicator_value
     df["token_trend_7"] = np.where(df["token_change_7"] > 0, 1, -1)
     df["token_change_14"] = df["change_val"].rolling(14).sum() # oryginal
     df["token_trend_14"] = np.where(df["token_change_14"] > 0, 1, -1)
+    df["token_change_24"] = df["change_val"].rolling(24).sum()
+    df["token_trend_24"] = np.where(df["token_change_24"] > 0, 1, -1)
     df["token_change_50"] = df["change_val"].rolling(50).sum()
     df["token_trend_50"] = np.where(df["token_change_50"] > 0, 1, -1)
     df["token_change_100"] = df["change_val"].rolling(100).sum()
     df["token_trend_100"] = np.where(df["token_change_100"] > 0, 1, -1)
+    df["token_change_200"] = df["change_val"].rolling(200).sum()
+    df["token_trend_200"] = np.where(df["token_change_200"] > 0, 1, -1)
+
 
     # indicators
-    # Moving averages
+    # indicators
+    # indicators
+
+    # Moving averages - values
+
+    # SMA (Simple)
     df["sma_7"] = pta.sma(df["close"], length=7)
+    df["sma_14"] = pta.sma(df["close"], length=14)
     df["sma_25"] = pta.sma(df["close"], length=25)
+    df["sma_50"] = pta.sma(df["close"], length=50)
     df["sma_99"] = pta.sma(df["close"], length=99)
+    df["sma_100"] = pta.sma(df["close"], length=100)
+    df["sma_200"] = pta.sma(df["close"], length=200)
 
+    # WMA (Weighted)
     df["wma_7"] = pta.wma(df["close"], length=7)
+    df["wma_14"] = pta.wma(df["close"], length=14)
     df["wma_25"] = pta.wma(df["close"], length=25)
+    df["wma_50"] = pta.wma(df["close"], length=50)
     df["wma_99"] = pta.wma(df["close"], length=99)
+    df["wma_100"] = pta.wma(df["close"], length=100)
+    df["wma_200"] = pta.wma(df["close"], length=200)
 
+    # EMA (Exponential)
     df["ema_7"] = pta.ema(df["close"], length=7)
+    df["ema_14"] = pta.ema(df["close"], length=14)
     df["ema_25"] = pta.ema(df["close"], length=25)
+    df["ema_50"] = pta.ema(df["close"], length=50)
     df["ema_99"] = pta.ema(df["close"], length=99)
+    df["ema_100"] = pta.ema(df["close"], length=100)
+    df["ema_200"] = pta.ema(df["close"], length=200)
 
     # MACD's
-    df["macd"] = ta.MACD
+    # df["macd"] = ta.MACD
+
+
+    # Moving averages - crosses
+
 
     # oscilators
     # RSI
@@ -321,7 +351,7 @@ def get_test_result(test_stake_in, test_indicator_buy_1_in, test_indicator_value
     return result_string_1, result_string_2, result_string_3, score_1, score_2, score_3, score_4
 
 
-###################################################### LICZBA NIE ELEMENT
+    ###################################################### LICZBA NIE ELEMENT
 
 
 
