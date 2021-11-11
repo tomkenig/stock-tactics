@@ -61,6 +61,7 @@ def get_tactics_to_check():
 tactics_data = get_tactics_to_check()
 
 
+
 def get_test_result(test_stake_in, test_indicator_buy_1_in, test_indicator_value_1_in, test_yield_expect_in, test_wait_periods_in):
     df.columns =["open_time",
                  "open",
@@ -131,7 +132,7 @@ def get_test_result(test_stake_in, test_indicator_buy_1_in, test_indicator_value
 
     # SMA crosses
     # 1-fast higher than slow ; 2-fast lower than slow, 3 - cross period gold ; 4- cross period death
-    df["sma_7_14_cross"]
+    # df["sma_7_14_cross"] =
 
 
     # WMA (Weighted)
@@ -156,7 +157,6 @@ def get_test_result(test_stake_in, test_indicator_buy_1_in, test_indicator_value
     # df["macd"] = ta.MACD
 
 
-    # Moving averages - crosses
 
 
     # oscilators
