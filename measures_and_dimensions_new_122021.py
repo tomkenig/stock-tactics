@@ -47,9 +47,6 @@ def get_ohlc_data():
     print("OHLC data ready")
     return df, df_bak
 
-df, df_bak = get_ohlc_data()
-print(df)
-
 
 def get_tactics_to_check():
     cursor.execute(
@@ -58,10 +55,6 @@ def get_tactics_to_check():
             download_settings_id) + " limit " + str(TACTICS_PACK_SIZE) + " ")
     tactics_data = cursor.fetchall()
     return tactics_data
-
-
-tactics_data = get_tactics_to_check()
-
 
 
 def get_structured_data():
@@ -87,10 +80,6 @@ def get_structured_data():
                   "open_datetime",
                   "close_datetime"]
 
-get_structured_data()
-print(df)
-
-
 
 def get_indicators_basics():
     # basics
@@ -106,5 +95,78 @@ def get_indicators_basics():
     df["up_down"] = np.where(df["close"] - df["close"].shift(1) > 0, 1, -1)
 
 
-get_indicators_basics()
-print(df)
+def get_indicators_trend_and_changes():
+    # token: trend up/down 1 / -1
+    # definition: in custom period sums of change are up or down.
+    # you an combine it with ADX - trend strength by multiply both ie. -1 * 40
+    df["token_change_7"] = df["change_val"].rolling(7).sum()
+    df["token_trend_7"] = np.where(df["token_change_7"] > 0, 1, -1)
+    df["token_change_14"] = df["change_val"].rolling(14).sum() # oryginal
+    df["token_trend_14"] = np.where(df["token_change_14"] > 0, 1, -1)
+    df["token_change_24"] = df["change_val"].rolling(24).sum()
+    df["token_trend_24"] = np.where(df["token_change_24"] > 0, 1, -1)
+    df["token_change_50"] = df["change_val"].rolling(50).sum()
+    df["token_trend_50"] = np.where(df["token_change_50"] > 0, 1, -1)
+    df["token_change_100"] = df["change_val"].rolling(100).sum()
+    df["token_trend_100"] = np.where(df["token_change_100"] > 0, 1, -1)
+    df["token_change_200"] = df["change_val"].rolling(200).sum()
+    df["token_trend_200"] = np.where(df["token_change_200"] > 0, 1, -1)
+
+def get_indicators_averages():
+    # SMA (Simple)
+    df["sma_7"] = pta.sma(df["close"], length=7)
+    df["sma_14"] = pta.sma(df["close"], length=14)
+    df["sma_25"] = pta.sma(df["close"], length=25)
+    df["sma_50"] = pta.sma(df["close"], length=50)
+    df["sma_99"] = pta.sma(df["close"], length=99)
+    df["sma_100"] = pta.sma(df["close"], length=100)
+    df["sma_200"] = pta.sma(df["close"], length=200)
+
+    # SMA crosses
+    # 1-fast higher than slow ; 2-fast lower than slow, 3 - cross period gold ; 4- cross period death
+    df["sma_7_14_cross"] = np.where(df["sma_7"] > df["sma_14"] and df["sma_7"].iloc[-1] < df["sma_14"].iloc[-1], 1, 0)
+
+
+    # WMA (Weighted)
+    df["wma_7"] = pta.wma(df["close"], length=7)
+    df["wma_14"] = pta.wma(df["close"], length=14)
+    df["wma_25"] = pta.wma(df["close"], length=25)
+    df["wma_50"] = pta.wma(df["close"], length=50)
+    df["wma_99"] = pta.wma(df["close"], length=99)
+    df["wma_100"] = pta.wma(df["close"], length=100)
+    df["wma_200"] = pta.wma(df["close"], length=200)
+
+    # EMA (Exponential)
+    df["ema_7"] = pta.ema(df["close"], length=7)
+    df["ema_14"] = pta.ema(df["close"], length=14)
+    df["ema_25"] = pta.ema(df["close"], length=25)
+    df["ema_50"] = pta.ema(df["close"], length=50)
+    df["ema_99"] = pta.ema(df["close"], length=99)
+    df["ema_100"] = pta.ema(df["close"], length=100)
+    df["ema_200"] = pta.ema(df["close"], length=200)
+
+    # MACD's
+    # df["macd"] = ta.MACD
+
+
+
+if __name__ == "__main__":
+    df, df_bak = get_ohlc_data()
+    print(df)
+
+    tactics_data = get_tactics_to_check()
+
+    get_structured_data()
+    print(df)
+
+    get_indicators_basics()
+    print(df)
+
+    get_indicators_trend_and_changes()
+    print(df)
+
+    get_indicators_averages()
+    print(df)
+
+#    df.to_excel("exports/export_" + market + "_" + tick_interval + "_" + str(time.time()) + ".xlsx")
+
