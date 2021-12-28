@@ -124,7 +124,7 @@ def get_indicators_averages():
 
     # SMA crosses
     # 1-fast higher than slow ; 2-fast lower than slow, 3 - cross period gold ; 4- cross period death
-    df["sma_7_14_cross"] = np.where(df["sma_7"] > df["sma_14"] and df["sma_7"].iloc[-1] < df["sma_14"].iloc[-1], 1, 0)
+    df["sma_7_14_cross"] = np.where(((df["sma_7"] > df["sma_14"]) and (df["sma_7"].iloc[-1] < df["sma_14"].iloc[-1])), 1, 0)
 
 
     # WMA (Weighted)
