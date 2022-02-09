@@ -4,6 +4,7 @@
 pip install mysql-connector-python
 pip install pandas
 pip install numpy
+plan 2022/02/03
 """
 # libs
 # import datetime
@@ -23,14 +24,19 @@ cursor, cnxn = db_connect()
 # todo: not need to use all params. just use download_settings_id
 # todo: combination table. Can be stored in other schema
 
-download_settings_id = 3
+# TEST VALUES
+download_settings_id = 11  # 3
 market = 'BTCUSDT'
-tick_interval = '15m'
+tick_interval = '1d'
 data_granulation = 'klines'
 stock_type = 'spot'
 stock_exchange = 'Binance.com'
-open_time = str(1631042226) + '000'
+# open_time = str(1631042226) + '000'
+open_time = str(1531042226) + '000'
 print("select done settings done")
+
+
+# SETTINGS
 TACTICS_PACK_SIZE = 500000
 
 
@@ -101,6 +107,8 @@ def get_indicators_trend_and_changes():
     # you an combine it with ADX - trend strength by multiply both ie. -1 * 40
     df["token_change_7"] = df["change_val"].rolling(7).sum()
     df["token_trend_7"] = np.where(df["token_change_7"] > 0, 1, -1)
+    df["token_change_10"] = df["change_val"].rolling(10).sum()
+    df["token_trend_10"] = np.where(df["token_change_10"] > 0, 1, -1)
     df["token_change_14"] = df["change_val"].rolling(14).sum() # oryginal
     df["token_trend_14"] = np.where(df["token_change_14"] > 0, 1, -1)
     df["token_change_24"] = df["change_val"].rolling(24).sum()
@@ -116,6 +124,7 @@ def get_indicators_averages():
     # SMA (Simple)
     df["sma_7"] = pta.sma(df["close"], length=7)
     df["sma_14"] = pta.sma(df["close"], length=14)
+    df["sma_21"] = pta.sma(df["close"], length=21)
     df["sma_25"] = pta.sma(df["close"], length=25)
     df["sma_50"] = pta.sma(df["close"], length=50)
     df["sma_99"] = pta.sma(df["close"], length=99)
@@ -124,12 +133,13 @@ def get_indicators_averages():
 
     # SMA crosses
     # 1-fast higher than slow ; 2-fast lower than slow, 3 - cross period gold ; 4- cross period death
-    df["sma_7_14_cross"] = np.where(((df["sma_7"] > df["sma_14"]) and (df["sma_7"].iloc[-1] < df["sma_14"].iloc[-1])), 1, 0)
+    #df["sma_7_14_cross"] = np.where(((df["sma_7"] > df["sma_14"]) and (df["sma_7"].iloc[-1] < df["sma_14"].iloc[-1])), 1, 0)
 
 
     # WMA (Weighted)
     df["wma_7"] = pta.wma(df["close"], length=7)
     df["wma_14"] = pta.wma(df["close"], length=14)
+    df["wma_21"] = pta.wma(df["close"], length=21)
     df["wma_25"] = pta.wma(df["close"], length=25)
     df["wma_50"] = pta.wma(df["close"], length=50)
     df["wma_99"] = pta.wma(df["close"], length=99)
@@ -139,11 +149,34 @@ def get_indicators_averages():
     # EMA (Exponential)
     df["ema_7"] = pta.ema(df["close"], length=7)
     df["ema_14"] = pta.ema(df["close"], length=14)
+    df["ema_21"] = pta.ema(df["close"], length=21)
     df["ema_25"] = pta.ema(df["close"], length=25)
     df["ema_50"] = pta.ema(df["close"], length=50)
     df["ema_99"] = pta.ema(df["close"], length=99)
     df["ema_100"] = pta.ema(df["close"], length=100)
     df["ema_200"] = pta.ema(df["close"], length=200)
+
+def get_indicators_averages_cross():
+
+    # Moving average crossing moving average
+    # golden cross (1) and death cross (-1)
+    df["cross_sma_50_200"] = np.where((df["sma_50"] - df["sma_200"] < 0) & (df["sma_50"].shift(1) - df["sma_200"].shift(1) > 0), 1, 0) +\
+                             np.where((df["sma_50"] - df["sma_200"] > 0) & (df["sma_50"].shift(1) - df["sma_200"].shift(1) < 0), -1, 0)
+    df["cross_sma_7_14"] = np.where((df["sma_7"] - df["sma_14"] < 0) & (df["sma_7"].shift(1) - df["sma_14"].shift(1) > 0), 1, 0) +\
+                             np.where((df["sma_7"] - df["sma_14"] > 0) & (df["sma_7"].shift(1) - df["sma_14"].shift(1) < 0), -1, 0)
+    df["cross_sma_7_21"] = np.where((df["sma_7"] - df["sma_21"] < 0) & (df["sma_7"].shift(1) - df["sma_21"].shift(1) > 0), 1, 0) +\
+                             np.where((df["sma_7"] - df["sma_21"] > 0) & (df["sma_7"].shift(1) - df["sma_21"].shift(1) < 0), -1, 0)
+
+    # moving average crossing price 7, 14, 21, 50
+    df["cross_sma_price_7"] = np.where((df["sma_7"] - df["close"] < 0) & (df["sma_7"].shift(1) - df["close"].shift(1) > 0), 1, 0) +\
+                             np.where((df["sma_7"] - df["close"] > 0) & (df["sma_7"].shift(1) - df["close"].shift(1) < 0), -1, 0)
+    df["cross_sma_price_14"] = np.where((df["sma_14"] - df["close"] < 0) & (df["sma_14"].shift(1) - df["close"].shift(1) > 0), 1, 0) +\
+                             np.where((df["sma_14"] - df["close"] > 0) & (df["sma_14"].shift(1) - df["close"].shift(1) < 0), -1, 0)
+    df["cross_sma_price_21"] = np.where((df["sma_21"] - df["close"] < 0) & (df["sma_21"].shift(1) - df["close"].shift(1) > 0), 1, 0) +\
+                             np.where((df["sma_21"] - df["close"] > 0) & (df["sma_21"].shift(1) - df["close"].shift(1) < 0), -1, 0)
+    # cross_sma_price_50 seems to be a good indicator in 2020 and 2021
+    df["cross_sma_price_50"] = np.where((df["sma_50"] - df["close"] < 0) & (df["sma_50"].shift(1) - df["close"].shift(1) > 0), 1, 0) +\
+                             np.where((df["sma_50"] - df["close"] > 0) & (df["sma_50"].shift(1) - df["close"].shift(1) < 0), -1, 0)
 
     # MACD's
     # df["macd"] = ta.MACD
@@ -168,5 +201,8 @@ if __name__ == "__main__":
     get_indicators_averages()
     print(df)
 
-#    df.to_excel("exports/export_" + market + "_" + tick_interval + "_" + str(time.time()) + ".xlsx")
+    get_indicators_averages_cross()
+    print(df)
+
+    df.to_excel("exports/export_" + market + "_" + tick_interval + "_" + str(time.time()) + ".xlsx")
 

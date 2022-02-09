@@ -11,7 +11,8 @@ from db_works import db_connect, db_tables
 import pandas as pd
 import numpy as np
 import pandas_ta as pta  # https://mrjbq7.github.io/ta-lib/
-import talib as ta  # install from whl file < https://www.lfd.uci.edu/~gohlke/pythonlibs/#ta-lib
+import talib as ta  # install from whl file < https://www.lfd.uci.edu/~gohlke/pythonlibs/#ta-lib ;
+# https://mrjbq7.github.io/ta-lib/doc_index.html
 import json
 import time
 import uuid  # https://docs.python.org/3/library/uuid.html
@@ -23,7 +24,7 @@ cursor, cnxn = db_connect()
 
 # todo: not need to use all params. just use download_settings_id
 # todo: combination table. Can be stored in other schema
-
+# TEST VALUES
 download_settings_id = 3
 market = 'BTCUSDT'
 tick_interval = '15m'
