@@ -120,6 +120,7 @@ def get_indicators_trend_and_changes():
     df["token_change_200"] = df["change_val"].rolling(200).sum()
     df["token_trend_200"] = np.where(df["token_change_200"] > 0, 1, -1)
 
+# AVERAGES
 def get_indicators_averages():
     # SMA (Simple)
     df["sma_7"] = pta.sma(df["close"], length=7)
@@ -196,8 +197,9 @@ def get_indicators_averages_cross_perioids():
     df["cross_period_sma_price_200"] = np.where((df["sma_200"] < df["close"]), 1, -1)
 
 
+# MOMENTUM INDICATORS
 
-def get_indicators_macd():
+def get_indicators_momentum_macd():
 
     # MACD's
 
@@ -205,6 +207,95 @@ def get_indicators_macd():
     # 1- buy signal -1  sell signal
     df["upcross_downcross_macd_signal"] = np.where((df["macd"] - df["macdsignal"] > 0) & (df["macd"].shift(1) - df["macdsignal"].shift(1) < 0), 1, 0) +\
                              np.where((df["macd"] - df["macdsignal"] < 0) & (df["macd"].shift(1) - df["macdsignal"].shift(1) > 0), -1, 0)
+
+
+
+def get_indicators_momentum_adx():
+    # ADX Average directional movement index
+    # checked with tradingview
+    df["adx_7"] = ta.ADX(df["high"], df["low"], df["close"], timeperiod=7)
+    df["adx_9"] = ta.ADX(df["high"], df["low"], df["close"], timeperiod=9)
+    df["adx_12"] = ta.ADX(df["high"], df["low"], df["close"], timeperiod=12)
+    df["adx_14"] = ta.ADX(df["high"], df["low"], df["close"]) # standard
+    df["adx_21"] = ta.ADX(df["high"], df["low"], df["close"], timeperiod=21)
+    df["adx_25"] = ta.ADX(df["high"], df["low"], df["close"], timeperiod=25)
+    df["adx_50"] = ta.ADX(df["high"], df["low"], df["close"], timeperiod=50)
+    df["adx_100"] = ta.ADX(df["high"], df["low"], df["close"], timeperiod=100)
+    df["adx_200"] = ta.ADX(df["high"], df["low"], df["close"], timeperiod=200)
+
+def get_indicators_momentum_adxr():
+    # ADXR Average directional movement index rating
+    df["adxr_7"] = ta.ADXR(df["high"], df["low"], df["close"], timeperiod=7)
+    df["adxr_9"] = ta.ADXR(df["high"], df["low"], df["close"], timeperiod=9)
+    df["adxr_12"] = ta.ADXR(df["high"], df["low"], df["close"], timeperiod=12)
+    df["adxr_14"] = ta.ADXR(df["high"], df["low"], df["close"]) # standard
+    df["adxr_21"] = ta.ADXR(df["high"], df["low"], df["close"], timeperiod=21)
+    df["adxr_25"] = ta.ADXR(df["high"], df["low"], df["close"], timeperiod=25)
+    df["adxr_50"] = ta.ADXR(df["high"], df["low"], df["close"], timeperiod=50)
+    df["adxr_100"] = ta.ADXR(df["high"], df["low"], df["close"], timeperiod=100)
+    df["adxr_200"] = ta.ADXR(df["high"], df["low"], df["close"], timeperiod=200)
+
+
+def get_indicators_momentum_apo():
+    df["apo_12_26"] = pta.apo(df["close"], fastperiod=12, slowperiod=26, matype=0)  # standart
+    df["apo_10_20"] = pta.apo(df["close"], fastperiod=10, slowperiod=20, matype=0)  # standart
+
+
+def get_indicators_momentum_aroon():
+    # https://tradersarea.pl/aroon-indicator-wskaznik-analizy-technicznej/
+    #AROON
+    df["aroondown_7"], df["aroonup_7"] = ta.AROON(df["high"], df["low"], timeperiod=7)
+    df["aroondown_9"], df["aroonup_9"] = ta.AROON(df["high"], df["low"], timeperiod=9)
+    df["aroondown_12"], df["aroonup_12"] = ta.AROON(df["high"], df["low"], timeperiod=12)
+    df["aroondown_14"], df["aroonup_14"] = ta.AROON(df["high"], df["low"], timeperiod=14)  # standart
+    df["aroondown_21"], df["aroonup_21"] = ta.AROON(df["high"], df["low"], timeperiod=21)
+    df["aroondown_25"], df["aroonup_25"] = ta.AROON(df["high"], df["low"], timeperiod=25)
+    df["aroondown_50"], df["aroonup_50"] = ta.AROON(df["high"], df["low"], timeperiod=50)
+    df["aroondown_100"], df["aroonup_100"] = ta.AROON(df["high"], df["low"], timeperiod=100)
+    df["aroondown_200"], df["aroonup_200"] = ta.AROON(df["high"], df["low"], timeperiod=200)
+
+    #AROONOSC
+    df["aroonosc_7"] = ta.AROONOSC(df["high"], df["low"], timeperiod=7)
+    df["aroonosc_9"] = ta.AROONOSC(df["high"], df["low"], timeperiod=9)
+    df["aroonosc_12"] = ta.AROONOSC(df["high"], df["low"], timeperiod=12)
+    df["aroonosc_14"] = ta.AROONOSC(df["high"], df["low"], timeperiod=14)  # standart
+    df["aroonosc_21"] = ta.AROONOSC(df["high"], df["low"], timeperiod=21)
+    df["aroonosc_25"] = ta.AROONOSC(df["high"], df["low"], timeperiod=25)
+    df["aroonosc_50"] = ta.AROONOSC(df["high"], df["low"], timeperiod=50)
+    df["aroonosc_100"] = ta.AROONOSC(df["high"], df["low"], timeperiod=100)
+    df["aroonosc_200"] = ta.AROONOSC(df["high"], df["low"], timeperiod=200)
+
+
+def get_indicators_momentum_bop():
+    # BOP - Balance Of Power
+    # checked with tradingview
+    df["bop"] = pta.bop(df["open"], df["high"], df["low"], df["close"])
+
+def get_indicators_momentum_cci():
+    # CCI -- tradingView.. Oversold: -80 - -300/-500 - infinity scale
+    df["cci_7"] = ta.CCI(df["high"], df["low"], df["close"], 7)
+    df["cci_9"] = ta.CCI(df["high"], df["low"], df["close"], 9)
+    df["cci_12"] = ta.CCI(df["high"], df["low"], df["close"], 12)
+    df["cci_14"] = ta.CCI(df["high"], df["low"], df["close"], 14)  # standart
+    df["cci_20"] = ta.CCI(df["high"], df["low"], df["close"], 20)  # tradingview corr
+    df["cci_21"] = ta.CCI(df["high"], df["low"], df["close"], 21)
+    df["cci_25"] = ta.CCI(df["high"], df["low"], df["close"], 25)
+    df["cci_50"] = ta.CCI(df["high"], df["low"], df["close"], 50)
+    df["cci_100"] = ta.CCI(df["high"], df["low"], df["close"], 100)
+    df["cci_200"] = ta.CCI(df["high"], df["low"], df["close"], 200)
+
+
+
+def get_indicators_momentum_cmo(period_list):
+    #CMO - Chande Momentum Oscillator
+    for i in period_list:
+        df["cmo_"+str(i)] = pta.cmo(df["close"], i)
+
+
+
+def get_indicators_momentum_willr(period_list):
+    for i in period_list:
+        df["willr_"+str(i)] = pta.willr(df["high"], df["low"], df["close"], i)
 
 
 
@@ -231,11 +322,36 @@ if __name__ == "__main__":
     get_indicators_averages_cross()
     print(df)
 
-    get_indicators_averages_cross_perioids()
+    #get_indicators_averages_cross_perioids()
     print(df)
 
-    get_indicators_macd()
+    #get_indicators_momentum_macd()
     print(df)
+
+    #get_indicators_momentum_adx()
+    print(df)
+
+    #get_indicators_momentum_adxr()
+    print(df)
+
+    #get_indicators_momentum_apo()
+    print(df)
+
+   # get_indicators_momentum_aroon()
+    print(df)
+
+   # get_indicators_momentum_bop()
+    print(df)
+
+   # get_indicators_momentum_cci()
+    print(df)
+
+    get_indicators_momentum_cmo([7, 9, 12, 14, 20, 21, 25, 50, 100, 200])
+    print(df)
+
+    get_indicators_momentum_willr([7, 9, 12, 14, 20, 21, 25, 50, 100, 200])
+    print(df)
+
 
     df.to_excel("exports/export_" + market + "_" + tick_interval + "_" + str(time.time()) + ".xlsx")
 

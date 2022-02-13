@@ -216,8 +216,8 @@ def get_test_result(test_stake_in, test_indicator_buy_1_in, test_indicator_value
     df["will_perc_r_6"] = pta.willr(df["high"], df["low"], df["close"], 6) #
     df["will_perc_r_10"] = pta.willr(df["high"], df["low"], df["close"], 10) # tradingview corr #williams default
     df["will_perc_r_14"] = pta.willr(df["high"], df["low"], df["close"], 14) # tradingview corr
-    df["will_perc_r_20"] = pta.willr(df["high"], df["low"], df["close"], 14) # tradingview corr
-    df["will_perc_r_24"] = pta.willr(df["high"], df["low"], df["close"], 14) # tradingview corr
+    df["will_perc_r_20"] = pta.willr(df["high"], df["low"], df["close"], 20) # tradingview corr
+    df["will_perc_r_24"] = pta.willr(df["high"], df["low"], df["close"], 24) # tradingview corr
 
 
     # CCI -- tradingView.. Oversold: -80 - -300/-500 - infinity scale
