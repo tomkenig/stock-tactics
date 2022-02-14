@@ -199,14 +199,7 @@ def get_indicators_averages_cross_perioids():
 
 # MOMENTUM INDICATORS
 
-def get_indicators_momentum_macd():
 
-    # MACD's
-
-    df["macd"], df["macdsignal"], df["macdhist"] = ta.MACD(df["close"], fastperiod=12, slowperiod=26, signalperiod=9)
-    # 1- buy signal -1  sell signal
-    df["upcross_downcross_macd_signal"] = np.where((df["macd"] - df["macdsignal"] > 0) & (df["macd"].shift(1) - df["macdsignal"].shift(1) < 0), 1, 0) +\
-                             np.where((df["macd"] - df["macdsignal"] < 0) & (df["macd"].shift(1) - df["macdsignal"].shift(1) > 0), -1, 0)
 
 
 
@@ -289,13 +282,95 @@ def get_indicators_momentum_cci():
 def get_indicators_momentum_cmo(period_list):
     #CMO - Chande Momentum Oscillator
     for i in period_list:
-        df["cmo_"+str(i)] = pta.cmo(df["close"], i)
+        df["cmo_"+str(i)] = pta.cmo(df["close"], timeperiod=i)
 
+def get_indicators_momentum_dx(period_list):
+    # DX - Directional Movement Index
+    for i in period_list:
+        df["dx_"+str(i)] = ta.DX(df["high"], df["low"], df["close"], timeperiod=i)
+
+
+def get_indicators_momentum_macd():
+
+    # MACD
+    df["macd"], df["macdsignal"], df["macdhist"] = ta.MACD(df["close"], fastperiod=12, slowperiod=26, signalperiod=9)
+    # 1- buy signal -1  sell signal
+    df["upcross_downcross_macd_signal"] = np.where((df["macd"] - df["macdsignal"] > 0) & (df["macd"].shift(1) - df["macdsignal"].shift(1) < 0), 1, 0) +\
+                             np.where((df["macd"] - df["macdsignal"] < 0) & (df["macd"].shift(1) - df["macdsignal"].shift(1) > 0), -1, 0)
+
+
+# todo: MACDEXT - MACD with controllable MA type
+
+# todo: MACDFIX - Moving Average Convergence/Divergence Fix 12/26
+
+
+def get_indicators_momentum_mfi(period_list):
+    # MINUS_DI - Minus Directional Indicator
+    for i in period_list:
+        df["mfi_"+str(i)] = ta.MFI(df["high"], df["low"], df["close"], df["volume"], timeperiod=i)
+
+
+
+def get_indicators_momentum_minus_di(period_list):
+    # MINUS_DI - Minus Directional Indicator
+    for i in period_list:
+        df["minus_di_"+str(i)] = ta.MINUS_DI(df["high"], df["low"], df["close"], timeperiod=i)
+
+
+def get_indicators_momentum_minus_dm(period_list):
+    # MINUS_DM - Minus Directional Movement
+    for i in period_list:
+        df["minus_dm_"+str(i)] = ta.MINUS_DM(df["high"], df["low"], timeperiod=i)
+
+
+def get_indicators_momentum_mom(period_list):
+    # MOM - Momentum
+    for i in period_list:
+        df["mom_"+str(i)] = ta.MOM(df["close"], timeperiod=i)
+
+
+def get_indicators_momentum_plus_di(period_list):
+    # MINUS_DI - Minus Directional Indicator (negative)
+    for i in period_list:
+        df["plus_di_"+str(i)] = ta.PLUS_DI(df["high"], df["low"], df["close"], timeperiod=i)
+
+
+def get_indicators_momentum_plus_dm(period_list):
+    # MINUS_DM - Minus Directional Movement (positive)
+    for i in period_list:
+        df["plus_dm_"+str(i)] = ta.PLUS_DM(df["high"], df["low"], timeperiod=i)
+
+
+def get_indicators_momentum_ppo():
+    # PPO - Percentage Price Oscillator
+    df["ppo_12_26"] = ta.PPO(df["close"], fastperiod=12, slowperiod=26, matype=0)  # standart
+    df["ppo_10_21"] = ta.PPO(df["close"], fastperiod=10, slowperiod=21, matype=0)  # tradingview corr
+
+
+def get_indicators_momentum_roc(period_list):
+    # ROC - Rate of change : ((price/prevPrice)-1)*100
+    for i in period_list:
+        df["roc_"+str(i)] = ta.ROC(df["close"], timeperiod=i)
+
+def get_indicators_momentum_rocp(period_list):
+    # ROCP - Rate of change Percentage: (price-prevPrice)/prevPrice
+    for i in period_list:
+        df["rocp_"+str(i)] = ta.ROCP(df["close"], timeperiod=i)
+
+def get_indicators_momentum_rocr(period_list):
+    # ROCR - Rate of change ratio: (price/prevPrice)
+    for i in period_list:
+        df["rocr_"+str(i)] = ta.ROCR(df["close"], timeperiod=i)
+
+def get_indicators_momentum_rocr100(period_list):
+    # ROCR100 - Rate of change ratio 100 scale: (price/prevPrice)*100
+    for i in period_list:
+        df["rocr100_"+str(i)] = ta.ROCR100(df["close"], timeperiod=i)
 
 
 def get_indicators_momentum_willr(period_list):
     for i in period_list:
-        df["willr_"+str(i)] = pta.willr(df["high"], df["low"], df["close"], i)
+        df["willr_"+str(i)] = pta.willr(df["high"], df["low"], df["close"], timeperiod=i)
 
 
 
@@ -322,36 +397,72 @@ if __name__ == "__main__":
     get_indicators_averages_cross()
     print(df)
 
-    #get_indicators_averages_cross_perioids()
+    get_indicators_averages_cross_perioids()
     print(df)
 
-    #get_indicators_momentum_macd()
+    get_indicators_momentum_adx()
     print(df)
 
-    #get_indicators_momentum_adx()
+    get_indicators_momentum_adxr()
     print(df)
 
-    #get_indicators_momentum_adxr()
+    get_indicators_momentum_apo()
     print(df)
 
-    #get_indicators_momentum_apo()
+    get_indicators_momentum_aroon()
     print(df)
 
-   # get_indicators_momentum_aroon()
+    get_indicators_momentum_bop()
     print(df)
 
-   # get_indicators_momentum_bop()
-    print(df)
-
-   # get_indicators_momentum_cci()
+    get_indicators_momentum_cci()
     print(df)
 
     get_indicators_momentum_cmo([7, 9, 12, 14, 20, 21, 25, 50, 100, 200])
     print(df)
 
-    get_indicators_momentum_willr([7, 9, 12, 14, 20, 21, 25, 50, 100, 200])
+    get_indicators_momentum_dx([7, 9, 12, 14, 20, 21, 25, 50, 100, 200])
     print(df)
 
+    get_indicators_momentum_macd()
+    print(df)
+
+    get_indicators_momentum_mfi([7, 9, 12, 14, 20, 21, 25, 50, 100, 200])  # tradingview checked:ok
+    print(df)
+
+    get_indicators_momentum_minus_di([7, 9, 12, 14, 20, 21, 25, 50, 100, 200])
+    print(df)
+
+    get_indicators_momentum_minus_dm([7, 9, 12, 14, 20, 21, 25, 50, 100, 200])
+    print(df)
+
+    get_indicators_momentum_mom([7, 9, 12, 14, 20, 21, 25, 50, 100, 200])
+    print(df)
+
+    get_indicators_momentum_plus_di([7, 9, 12, 14, 20, 21, 25, 50, 100, 200])
+    print(df)
+
+    get_indicators_momentum_plus_dm([7, 9, 12, 14, 20, 21, 25, 50, 100, 200])
+    print(df)
+
+    get_indicators_momentum_ppo()
+    print(df)
+
+    get_indicators_momentum_roc([7, 9, 12, 14, 20, 21, 25, 50, 100, 200])  # tradingview checked:ok
+    print(df)
+
+    get_indicators_momentum_rocp([7, 9, 12, 14, 20, 21, 25, 50, 100, 200])
+    print(df)
+
+    get_indicators_momentum_rocr([7, 9, 12, 14, 20, 21, 25, 50, 100, 200])
+
+    get_indicators_momentum_rocr100([7, 9, 12, 14, 20, 21, 25, 50, 100, 200])
+
+
+   # get_indicators_momentum_willr([7, 9, 12, 14, 20, 21, 25, 50, 100, 200])
+    print(df)
+
+    # todo: if some results are different between tradingview and this program - check other library fe: TA instead of PTA
 
     df.to_excel("exports/export_" + market + "_" + tick_interval + "_" + str(time.time()) + ".xlsx")
 
