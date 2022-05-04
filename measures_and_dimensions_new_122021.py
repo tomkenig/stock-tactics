@@ -132,14 +132,14 @@ def get_indicators_averages_cross():
 
     # Moving average crossing moving average
     # golden cross (1) and death cross (-1)
-    df["cross_sma_50_200"] = np.where((df["sma_50"] - df["sma_200"] < 0) & (df["sma_50"].shift(1) - df["sma_200"].shift(1) > 0), 1, 0) +\
-                             np.where((df["sma_50"] - df["sma_200"] > 0) & (df["sma_50"].shift(1) - df["sma_200"].shift(1) < 0), -1, 0)
-    df["cross_sma_7_14"] = np.where((df["sma_7"] - df["sma_14"] < 0) & (df["sma_7"].shift(1) - df["sma_14"].shift(1) > 0), 1, 0) +\
-                             np.where((df["sma_7"] - df["sma_14"] > 0) & (df["sma_7"].shift(1) - df["sma_14"].shift(1) < 0), -1, 0)
-    df["cross_sma_7_21"] = np.where((df["sma_7"] - df["sma_21"] < 0) & (df["sma_7"].shift(1) - df["sma_21"].shift(1) > 0), 1, 0) +\
-                             np.where((df["sma_7"] - df["sma_21"] > 0) & (df["sma_7"].shift(1) - df["sma_21"].shift(1) < 0), -1, 0)
-    df["cross_sma_7_50"] = np.where((df["sma_7"] - df["sma_50"] < 0) & (df["sma_7"].shift(1) - df["sma_50"].shift(1) > 0), 1, 0) +\
-                             np.where((df["sma_7"] - df["sma_50"] > 0) & (df["sma_7"].shift(1) - df["sma_50"].shift(1) < 0), -1, 0)
+    df["cross_sma_50_200"] = np.where((df["sma_50"] - df["sma_200"] < 0) & (df["sma_50"].shift(1) - df["sma_200"].shift(1) > 0), -1, 0) +\
+                             np.where((df["sma_50"] - df["sma_200"] > 0) & (df["sma_50"].shift(1) - df["sma_200"].shift(1) < 0), 1, 0)
+    df["cross_sma_7_14"] = np.where((df["sma_7"] - df["sma_14"] < 0) & (df["sma_7"].shift(1) - df["sma_14"].shift(1) > 0), -1, 0) +\
+                             np.where((df["sma_7"] - df["sma_14"] > 0) & (df["sma_7"].shift(1) - df["sma_14"].shift(1) < 0), 1, 0)
+    df["cross_sma_7_21"] = np.where((df["sma_7"] - df["sma_21"] < 0) & (df["sma_7"].shift(1) - df["sma_21"].shift(1) > 0), -1, 0) +\
+                             np.where((df["sma_7"] - df["sma_21"] > 0) & (df["sma_7"].shift(1) - df["sma_21"].shift(1) < 0), 1, 0)
+    df["cross_sma_7_50"] = np.where((df["sma_7"] - df["sma_50"] < 0) & (df["sma_7"].shift(1) - df["sma_50"].shift(1) > 0), -1, 0) +\
+                             np.where((df["sma_7"] - df["sma_50"] > 0) & (df["sma_7"].shift(1) - df["sma_50"].shift(1) < 0), 1, 0)
 
     # moving average crossing price 7, 14, 21, 50
     df["cross_sma_price_7"] = np.where((df["sma_7"] - df["close"] < 0) & (df["sma_7"].shift(1) - df["close"].shift(1) > 0), 1, 0) +\
@@ -157,17 +157,17 @@ def get_indicators_averages_cross():
 def get_indicators_averages_cross_perioids():
     # todo: as def get_indicators_averages_cross(), but without 0 value. Show, where x is below y or under
     # 1-golden period ;-1 - death period
-    df["cross_period_sma_50_200"] = np.where((df["sma_50"] < df["sma_200"]), 1, -1)
-    df["cross_period_sma_7_14"] = np.where((df["sma_7"] < df["sma_14"]), 1, -1)
-    df["cross_period_sma_7_21"] = np.where((df["sma_7"] < df["sma_21"]), 1, -1)
-    df["cross_period_sma_7_50"] = np.where((df["sma_7"] < df["sma_50"]), 1, -1)
+    df["cross_period_sma_50_200"] = np.where((df["sma_50"] < df["sma_200"]), -1, 1)
+    df["cross_period_sma_7_14"] = np.where((df["sma_7"] < df["sma_14"]), -1, 1)
+    df["cross_period_sma_7_21"] = np.where((df["sma_7"] < df["sma_21"]), -1, 1)
+    df["cross_period_sma_7_50"] = np.where((df["sma_7"] < df["sma_50"]), -1, 1)
 
     # moving average crossing price 7, 14, 21, 50
-    df["cross_period_sma_price_7"] = np.where((df["sma_7"] < df["close"]), 1, -1)
-    df["cross_period_sma_price_14"] = np.where((df["sma_14"] < df["close"]), 1, -1)
-    df["cross_period_sma_price_21"] = np.where((df["sma_21"] < df["close"]), 1, -1)
-    df["cross_period_sma_price_50"] = np.where((df["sma_50"] < df["close"]), 1, -1)
-    df["cross_period_sma_price_200"] = np.where((df["sma_200"] < df["close"]), 1, -1)
+    df["cross_period_sma_price_7"] = np.where((df["sma_7"] < df["close"]), -1, 1)
+    df["cross_period_sma_price_14"] = np.where((df["sma_14"] < df["close"]), -1, 1)
+    df["cross_period_sma_price_21"] = np.where((df["sma_21"] < df["close"]), -1, 1)
+    df["cross_period_sma_price_50"] = np.where((df["sma_50"] < df["close"]), -1, 1)
+    df["cross_period_sma_price_200"] = np.where((df["sma_200"] < df["close"]), -1, 1)
 
 
 # MOMENTUM INDICATORS
@@ -199,8 +199,6 @@ def get_indicators_momentum_aroon(period_list):
 
         #AROONOSC
         df["aroonosc_"+str(i)] = ta.AROONOSC(df["high"], df["low"], timeperiod=i)
-
-
 
 def get_indicators_momentum_bop():
     # BOP - Balance Of Power
